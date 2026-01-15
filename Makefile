@@ -39,6 +39,9 @@ LDFLAGS += -T ../linker.ld
 # Working Directory
 WD := src
 
+# Inlcude Path
+INCL := $(WD)/include
+
 # Assembly Directory
 ASM := $(WD)/asm
 
@@ -50,8 +53,8 @@ ASMSRC := $(wildcard $(ASM)/*.S)	# Grab all ASM Files
 ASMOBJ := $(patsubst $(ASM)/%.S,$(BD)/%.o,$(ASMSRC)) # Create Copy filenames that end in .o $(patsubst pattern,replacement,text)
 
 # C Code Macros
-CSRC   := $(wildcard $(WD)/*.c)		# Grab all C Files
-COBJ   := $(patsubst $(WD)/%.c,$(BD)/%.o,$(CSRC)) # Create Copy Filenames that end in .o $(patsubst pattern,replacement,text)
+CSRC := $(wildcard $(WD)/*.c)		# Grab all C Files
+COBJ := $(patsubst $(WD)/%.c,$(BD)/%.o,$(CSRC)) # Create Copy Filenames that end in .o $(patsubst pattern,replacement,text)
 
 # Output Files
 ELF := $(BD)/arcade.elf
