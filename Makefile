@@ -4,14 +4,10 @@
 # Tools
 #
 
-# Compilier
-CC := gcc
-
-# Linker
-LD := ld
-
-# Object Copy
-OBJ := objcopy
+CC 		:= gcc 		# Compilier
+ASBL	:= nasm		# Assembler (NASM)
+LD 		:= ld		# Linker
+OBJ 	:= objcopy	# Object Copy
 
 #
 # Settings
@@ -36,21 +32,19 @@ LDFLAGS += -T ../linker.ld
 # Directories and Filenames
 #
 
-# Working Directory
-WD := src
+WD 		:= src				# Main Code Directory
+INCL 	:= $(WD)/include	# Header Files Location
+BOOT 	:= boot				# Where the bootloader is located
+ASM 	:= $(WD)/asm		# Assembly Files
+BD 		:= build			# Output Directory
 
-# Inlcude Path
-INCL := $(WD)/include
+# Stage 1 Bootloader
+STAGE1_SRC := $(BOOT)/stage1.asm
+STAGE1_BIN := $(BD)/stage1.bin
 
-# Assembly Directory
-ASM := $(WD)/asm
-
-# Build Directory
-BD := build
-
-# Assembly Source Code Macros
-ASMSRC := $(wildcard $(ASM)/*.S)	# Grab all ASM Files
-ASMOBJ := $(patsubst $(ASM)/%.S,$(BD)/%.o,$(ASMSRC)) # Create Copy filenames that end in .o $(patsubst pattern,replacement,text)
+# Assembly Application Code Macros
+ASMSRC := $(wildcard $(ASM)/*.asm) # Grab all ASM Files 
+ASMOBJ := $(patsubst $(ASM)/%.asm,$(BD)/%.o,$(ASMSRC)) # Create Copy filenames that end in .o $(patsubst pattern,replacement,text)
 
 # C Code Macros
 CSRC := $(wildcard $(WD)/*.c)		# Grab all C Files
@@ -60,27 +54,34 @@ COBJ := $(patsubst $(WD)/%.c,$(BD)/%.o,$(CSRC)) # Create Copy Filenames that end
 ELF := $(BD)/arcade.elf
 BIN := $(BD)/arcade.bin
 
+# Final img File
+DISK := $(BD)/arcade.img
+
 #
 # Scripts
 #
 
 # These should not be file names anyway, but still good to have
-.PHONY: all clean
+.PHONY: all clean run
 
 # Use "make all" to build the project
-all: $(BIN)
+all: $(DISK)
 
 # Make build directory
 $(BD):
 	mkdir -p $(BD)
 
-# Assemble all Asseembly
-$(BD)/%.o: $(ASM)/%.S | $(BD)
-	$(CC) $(CFLAGS) -c $< -o $@
+# Make the Stage 1 Boot Sector: Raw 512-Byte Binary
+$(STAGE1_BIN): $(STAGE1_SRC) | $(BD)
+	$(ASBL) -f bin $< -o $@
+
+# Assemble Kernel Assembly Objects
+$(BD)/%.o: $(ASM)/%.asm | $(BD)
+	$(ASBL) -f elf32 $< -o $@
 
 # Compile the C Code
 $(BD)/%.o: $(WD)/%.c | $(BD)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(INCL) -c $< -o $@
 
 # Link everything together
 $(ELF): $(ASMOBJ) $(COBJ)
@@ -88,7 +89,17 @@ $(ELF): $(ASMOBJ) $(COBJ)
 
 # Make the binary image
 $(BIN): $(ELF)
-	$(OBJ) -O binary $(ELF) $(BIN)
+	$(OBJ) -O binary $< $@
+
+# Create the disk image
+$(DISK): $(STAGE1_BIN) $(BIN) | $(BD)
+	dd if=/dev/zero of=$@ bs=1M count=16 status=none
+	dd if=$(STAGE1_BIN) of=$@ bs=512 conv=notrunc status=none
+	dd if=$(BIN) of=$@ bs=512 seek=1 conv=notrunc status=none
+
+# Run the disk image
+run: $(DISK)
+	qemu-system-i386 -drive format=raw,file=$(DISK) -serial stdio -no-reboot
 
 # Cleaning Script to delete all build files
 clean:

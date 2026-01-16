@@ -1,0 +1,4 @@
+db - 8 bits     (1 Byte)
+dw - 16 bits    (2 Bytes)
+dd - 32 bits    (4 Bytes)
+dq - 64 bits    (8 Bytes)
