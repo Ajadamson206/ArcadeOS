@@ -1,0 +1,5 @@
+16-bit	Low 8-bit	High 8-bit
+AX	    AL	        AH
+BX	    BL	        BH
+CX	    CL	        CH
+DX	    DL	        DH

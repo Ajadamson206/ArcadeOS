@@ -50,7 +50,7 @@ start:
 ; Prints the error of what ever string is loaded into reg: si
 printerror:
     lodsb
-    test al, al ; Check for the NULL Byte
+    test al, al ; Check for the NULL Byte (Sets zero flag if null)
     jz hang
     call printchar
     jmp printerror
@@ -112,7 +112,7 @@ lba_error db 'LBA Error',0
 disk_error db 'Disk Error',0
 boot_drive db 0
 
-STAGE2_SECTORS equ 64
+STAGE2_SECTORS equ 1
 
 TIMES 510 - ($ - $$) db 0
 dw 0xAA55
