@@ -31,29 +31,46 @@ start:
     mov dl, [boot_drive]
     int 0x13
 
-    ; If LBA is NOT supported: carry is set, BX will still be 0x55AA
-    jc .no_lba
+    ; If LBA MAY NOT be supported: carry is set, BX will still be 0x55AA
+    jnc .bx_check
+    call .no_lba
+
+.bx_check:
     cmp bx, 0xAA55
-    jne .no_lba
+    je .cx_check
+    call .no_lba_bx
 
     ; If the extended Functions are available CX has the 0th bit set to 1
+.cx_check:
     test cx, 1
-    jz .no_lba
-    
-    ; Jump if supported
+    jnz supported ; Jump if supported
+    call .no_lbae
     jmp supported
+
+.no_lba_bx:
+    mov si, bx_error
+    call printerror
+    ret
+
+.no_lbae:
+    mov si, lbae_error
+    call printerror
+    ret
 
 .no_lba:
     mov si, lba_error
-    jmp printerror
+    call printerror
+    ret
 
 ; Prints the error of what ever string is loaded into reg: si
 printerror:
     lodsb
     test al, al ; Check for the NULL Byte (Sets zero flag if null)
-    jz hang
+    jz .done
     call printchar
     jmp printerror
+.done:
+    ret
 
 ; Prints the ASCII value of what is in reg: al
 printchar: 
@@ -109,6 +126,8 @@ dap:
     dd 0
 
 lba_error db 'LBA Error',0
+lbae_error db 'No Extended LBA Functions',0
+bx_error db 'BX Error for LBA',0
 disk_error db 'Disk Error',0
 boot_drive db 0
 
