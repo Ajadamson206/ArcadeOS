@@ -15,6 +15,7 @@ jmp stage2
 
 ; Include Files
 %include "boot/stage2/enableA20.asm"
+%include "boot/stage2/e820map.asm"
 
 ; We need to treat this as a completely new file than Stage 1
 ; Only assumption we can make is LBA is compatible
@@ -33,6 +34,11 @@ stage2:
 
     ; Store the BootDrive
     mov [boot_drive], dl ; Store the bootdrive ID into memory (BIOS Stores it into dl)
+    mov al, dl
+    call printint    
+
+    mov si, new_line
+    call printstring
 
     ; Move the string to si and print it to screen
     mov si, stage2_string
@@ -46,6 +52,18 @@ stage2:
     call printstring
 
     ; Get E820 Map
+    call get_map
+    
+    push ds
+    push si
+
+    mov si, 0x9B00
+    mov ax, word [si]
+
+    call printint
+
+    pop si
+    pop ds
 
     ; Load Kernel (INT 13h)
 
@@ -64,24 +82,37 @@ hang:
 
 ; Prints what ever string is loaded into reg: si
 printstring:
+    push ax
+.str_loop: 
     lodsb
     test al, al ; Check for the NULL Byte (Sets zero flag if null)
     jz .done
     call printchar
-    jmp printstring
+    jmp .str_loop
 .done:
+    pop ax
     ret
 
 ; Prints the ASCII value of what is in reg: al
-printchar: 
+printchar:
+    push ax
+    push bx
+    push cx
+    push dx
+
     mov ah, 0x0E    ; Write Character in TTY Mode
     mov bh, 0x00    ; Page no
     mov bl, 0x07    ; Test attr 0x07 is lightgrey font on black background
 
     int 0x10        ; Video Interrupt BIOS Call
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 
-; Prints an ASCII String of the value in ax 12340
+; Prints an ASCII String of the value in ax
 printint:
     ; Push registers onto the stack
     push ax
@@ -123,6 +154,29 @@ printint:
     pop ax
     ret
 
+; Temp Function
+print_map:
+    ; 0x009B00 has the number of entries
+    ; 0x009C00 is where the entries start
+    ; Each entry is 24 Bytes
+
+    pushf
+    push ds
+    push es
+    push di
+    push si
+
+    ; Store number of entries into cx
+    xor ax, ax
+    mov ds, ax
+
+    mov si, 0x9B00
+    mov cx, word [si]
+    
+    ; We are going to write the memory map at 0x009C00
+    mov es, ax
+    mov di, 0x9C00
+
 a20failure:
     mov si, a20fail
     call printstring
@@ -134,12 +188,12 @@ a20fail db 'Enabling A20 has failed.',13,10,0
 ; General Messages
 stage2_string db 'Entering Stage 2:',13,10,0
 a20good db 'Successfully enable A20',13,10,0
-new_line db 13,10,10
+new_line db 13,10,0
 low_memory db 'Lower Memory Size: ',0
 high_memory db 'Higher Memory Size: ',0
 
-
 ; Misc Variables stored in memory
 boot_drive db 0
+kernel_size dw 0 ; Size of the Kernel in Bytes
 
-TIMES 512 - ($ - $$) db 0
+TIMES 1024 - ($ - $$) db 0
