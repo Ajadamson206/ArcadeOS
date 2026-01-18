@@ -131,7 +131,7 @@ bx_error db 'BX Error for LBA',0
 disk_error db 'Disk Error',0
 boot_drive db 0
 
-STAGE2_SECTORS equ 2
+STAGE2_SECTORS equ 3
 
 TIMES 510 - ($ - $$) db 0
 dw 0xAA55

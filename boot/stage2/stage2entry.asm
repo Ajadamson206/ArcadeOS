@@ -62,8 +62,16 @@ stage2:
 
     call printint
 
+    mov si, new_line
+    call printstring
+
     pop si
     pop ds
+
+    mov si, map_string
+    call printstring
+
+    call print_map
 
     ; Load Kernel (INT 13h)
 
@@ -154,6 +162,41 @@ printint:
     pop ax
     ret
 
+; Print the hex of the number stored in al
+printhex:
+    push cx
+    push si
+
+    mov cx, 16
+    div cl
+
+    mov si, hex_conv
+
+    ; al has the quotient, ah has the remainder    
+    mov cl, ah
+    add si, cx ; Increment pointer by hex number 0-15
+    mov cl, al
+    mov al, [si] ; Dereference the pointer to get the hex number
+    xor ah, ah
+    mov bx, sp ; Copy the stack pointer We will print directly from stack
+
+    push ax
+    mov si, hex_conv
+
+    ; Cl currently has the quotient
+    add si, cx
+    mov al, [si]
+
+    call printchar
+
+    pop ax
+
+    call printchar
+
+    pop si
+    pop cx
+    ret
+
 ; Temp Function
 print_map:
     ; 0x009B00 has the number of entries
@@ -173,9 +216,112 @@ print_map:
     mov si, 0x9B00
     mov cx, word [si]
     
-    ; We are going to write the memory map at 0x009C00
+    ; We are going to read the memory map at 0x009C00
     mov es, ax
     mov di, 0x9C00
+
+.map_loop:
+    ; Test if there is data written there
+    test cx, cx
+    jz .map_exit
+
+    ; 24 Bytes of data 8: Base Address 8: Region Length 4: Region Type 4: ACPI 3.0 Extended Attributes
+
+    mov si, hex_string
+    call printstring
+
+    ; Print Address
+
+    mov al, byte [di + 7]
+    call printhex
+    mov al, byte [di + 6]
+    call printhex
+    mov al, byte [di + 5]
+    call printhex
+    mov al, byte [di + 4]
+    call printhex
+    mov al, byte [di + 3]
+    call printhex
+    mov al, byte [di + 2]
+    call printhex
+    mov al, byte [di + 1]
+    call printhex
+    mov al, byte [di]
+    call printhex
+
+
+    mov al, 32
+    call printchar
+
+    ; Print Length
+    mov si, hex_string
+    call printstring
+
+    mov al, byte [di + 15]
+    call printhex
+    mov al, byte [di + 14]
+    call printhex
+    mov al, byte [di + 13]
+    call printhex
+    mov al, byte [di + 12]
+    call printhex
+    mov al, byte [di + 11]
+    call printhex
+    mov al, byte [di + 10]
+    call printhex
+    mov al, byte [di + 9]
+    call printhex
+    mov al, byte [di + 8]
+    call printhex
+
+    mov al, 32
+    call printchar
+
+    ; Region Type
+    mov si, hex_string
+    call printstring
+
+    mov al, byte [di + 19]
+    call printhex
+    mov al, byte [di + 18]
+    call printhex
+    mov al, byte [di + 17]
+    call printhex
+    mov al, byte [di + 16]
+    call printhex
+
+    mov al, 32
+    call printchar
+
+    ; APCI Extended
+    mov si, hex_string
+    call printstring
+
+    mov al, byte [di + 23]
+    call printhex
+    mov al, byte [di + 22]
+    call printhex
+    mov al, byte [di + 21]
+    call printhex
+    mov al, byte [di + 20]
+    call printhex
+
+    mov si, new_line
+    call printstring
+
+    ; Decrement Counter, Increment DI
+    dec cx
+    add di, 24
+    jmp .map_loop
+    
+.map_exit:
+    pop si
+    pop di
+    pop es
+    pop ds
+    popf
+
+    ret
 
 a20failure:
     mov si, a20fail
@@ -191,9 +337,12 @@ a20good db 'Successfully enable A20',13,10,0
 new_line db 13,10,0
 low_memory db 'Lower Memory Size: ',0
 high_memory db 'Higher Memory Size: ',0
+hex_string db '0x',0
+map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
 
 ; Misc Variables stored in memory
 boot_drive db 0
 kernel_size dw 0 ; Size of the Kernel in Bytes
+hex_conv db '0123456789ABCDEF' ; Map for converting from binary -> ASCII Hex
 
-TIMES 1024 - ($ - $$) db 0
+TIMES 1536 - ($ - $$) db 0
