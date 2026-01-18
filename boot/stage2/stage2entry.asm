@@ -14,8 +14,12 @@
 jmp stage2
 
 ; Include Files
+%include "boot/stage2/magicNumbers.asm"
+
 %include "boot/stage2/enableA20.asm"
 %include "boot/stage2/e820map.asm"
+%include "boot/stage2/loadkernel.asm"
+%include "boot/stage2/buildbootinfo.asm"
 
 ; We need to treat this as a completely new file than Stage 1
 ; Only assumption we can make is LBA is compatible
@@ -74,11 +78,13 @@ stage2:
     call print_map
 
     ; Load Kernel (INT 13h)
+    call loadkernel
 
     ; Build boot-info struct
+    call buildbootinfo
 
     ; Load Global Descriptor Table, set cr0.pe, far jump into 32-bit
-
+    
     ; set segment registers, set esp (32-bit stack pointer), cld
 
     ; Call stage2_main (32-bit C code, but still in bootloader process)
@@ -178,7 +184,6 @@ printhex:
     mov cl, al
     mov al, [si] ; Dereference the pointer to get the hex number
     xor ah, ah
-    mov bx, sp ; Copy the stack pointer We will print directly from stack
 
     push ax
     mov si, hex_conv
@@ -339,10 +344,5 @@ low_memory db 'Lower Memory Size: ',0
 high_memory db 'Higher Memory Size: ',0
 hex_string db '0x',0
 map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
-
-; Misc Variables stored in memory
-boot_drive db 0
-kernel_size dw 0 ; Size of the Kernel in Bytes
-hex_conv db '0123456789ABCDEF' ; Map for converting from binary -> ASCII Hex
 
 TIMES 1536 - ($ - $$) db 0

@@ -1,0 +1,9 @@
+segment * 16 + offset
+
+segment registers:
+    ds
+    es
+
+offset registers:
+    di
+    si

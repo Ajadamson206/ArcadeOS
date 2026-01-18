@@ -88,4 +88,3 @@ print_mem_map_entry:
 
 
 memory_map_err db 'Failed to get the memory map',13,10,0
-hex_start db '0x',0
