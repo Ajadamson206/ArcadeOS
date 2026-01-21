@@ -11,18 +11,19 @@ buildbootinfo:
     mov si, bootinfo_struct
 
     ; 2nd 8-Byte Chunk
-    mov byte [bootinfo_struct + 8], [boot_drive]    
-    mov eax, 0x0000000000009C00
+    mov dl, [boot_drive]
+    mov byte [bootinfo_struct + 8], dl  
+    mov eax, 0x00009C00
     mov dword [bootinfo_struct + 9], eax
-    mov byte [bootinfo_struct + 13], cx
+    mov byte [bootinfo_struct + 13], cl
 
     ; 3rd 8-Byte Chunk
-    mov eax, 0x0000000000100000
+    mov eax, 0x00100000
     mov dword [bootinfo_struct + 16], eax
     mov dword [bootinfo_struct + 20], KERNEL_BYTES
 
     ; 4th 8-Byte Chunk
-    mov eax, 0x0000000000008000
+    mov eax, 0x00008000
     mov dword [bootinfo_struct + 24], eax
     mov dword [bootinfo_struct + 28], 0x600     ; This will need to be updated when stage 2 grows due to the C Code
 
@@ -34,12 +35,12 @@ buildbootinfo:
 
 
 bootinfo_struct:
-    dd 0xFF12FF12FF12FF12   ; A Unique Value that says that this is my bootloader
+    dd 0xFF12FF12           ; A Unique Value that says that this is my bootloader
     dw 0x1                  ; Version info (Version 1)
     dw 0x28                 ; Size of the struct in bytes (40 Bytes)
 
     db 0                    ; Boot drive id (DL Register)
-    dd 0x                   ; Pointer to the e820 map: 0x009C00
+    dd 0                    ; Pointer to the e820 map: 0x009C00
     dw 0                    ; Number of entries in the e820 map: 0x009B00
     db 0                    ; Padding
 
