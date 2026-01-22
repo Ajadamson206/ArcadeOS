@@ -20,6 +20,8 @@ jmp stage2
 %include "boot/stage2/e820map.asm"
 %include "boot/stage2/loadkernel.asm"
 %include "boot/stage2/buildbootinfo.asm"
+%include "boot/stage2/loadgdt.asm"
+
 
 ; We need to treat this as a completely new file than Stage 1
 ; Only assumption we can make is LBA is compatible
@@ -84,7 +86,12 @@ stage2:
     call buildbootinfo
 
     ; Load Global Descriptor Table, set cr0.pe, far jump into 32-bit
-    
+    lgdt [cs:gdt_descriptor]
+
+    mov eax, cr0
+    or al, 1        ; Set the protection enable bit
+    mov cr0, eax    
+
     ; set segment registers, set esp (32-bit stack pointer), cld
 
     ; Call stage2_main (32-bit C code, but still in bootloader process)

@@ -1,0 +1,23 @@
+Variable Values used in the encodeGdtEntry.py script
+
+NULL
+    (All Zero)
+
+Kernel Code Segment
+    BASE=0
+    LIMIT=0xFFFFF
+
+    # Access Byte
+    PRESENT=True
+    DPL=0           # Privilege Must be between Level 0-3
+    TYPE=1
+    EXECUTABLE=1
+    DC=0
+    RW=1
+    ACCESSED=0
+
+    # Flags Byte
+    GRANULATIY=True       
+    DB=True
+    LONG_MODE_FLAG=False
+
