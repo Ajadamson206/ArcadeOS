@@ -92,10 +92,7 @@ stage2:
     or al, 1        ; Set the protection enable bit
     mov cr0, eax    
 
-    ; set segment registers, set esp (32-bit stack pointer), cld
-
-    ; Call stage2_main (32-bit C code, but still in bootloader process)
-
+    jmp 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
 
 hang:
     hlt
@@ -351,5 +348,7 @@ low_memory db 'Lower Memory Size: ',0
 high_memory db 'Higher Memory Size: ',0
 hex_string db '0x',0
 map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
+
+%include "boot/stage2/protectedmode.asm"
 
 TIMES 1536 - ($ - $$) db 0
