@@ -5,9 +5,9 @@
 #
 
 export CC 		:= gcc 		# Compilier
-export ASBL	:= nasm		# Assembler (NASM)
+export ASBL		:= nasm		# Assembler (NASM)
 export LD 		:= ld		# Linker
-export OBJ 	:= objcopy	# Object Copy
+export OBJ 		:= objcopy	# Object Copy
 
 #
 # Settings

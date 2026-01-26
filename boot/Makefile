@@ -49,6 +49,8 @@ S2_COBJ := $(patsubst $(S2_CDIR)/%.c,$(BD)/%.o,$(S2_CSRC))
 
 S2_ASM_O := $(BD)/stage2.o
 
+INCL 	:= $(CWD)/stage2/include	# Header Files Location
+
 # Build the Stage 2 Bootloader First
 .PHONY: bootloader test
 
@@ -68,7 +70,7 @@ $(S2_ASM_O): $(S2_ASM) | $(BD)
 
 # Compile Stage 2 C Files
 $(BD)/%.o: $(S2_CDIR)/%.c | $(BD)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
 
 # Link Stage 2 Elf
 $(S2_ELF): $(S2_ASM_O) $(S2_COBJ) | $(BD)

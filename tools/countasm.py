@@ -20,9 +20,11 @@ def countLines(filename: str):
 
 
 currentCount = countLines(PATH + "stage1.asm")
-files = [f for f in listdir(PATH + "stage2/") if isfile(join(PATH + "stage2/", f))]
+currentCount += countLines(PATH + "stage2/stage2entry.asm")
+files = [f for f in listdir(PATH + "stage2/asm") if isfile(join(PATH + "stage2/asm/", f))]
 
 for file in files:
-    currentCount += countLines(PATH + "stage2/" + file)
+    currentCount += countLines(PATH + "stage2/asm/" + file)
 
 print(f"{currentCount} Lines of Assembly")
+print(listdir('.'))
