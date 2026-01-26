@@ -9,18 +9,20 @@
 ; 8. jump to kernel entry, pass boot info ptr
 
 [BITS 16]       ; CPU Executes the following Code in 16-Bit Modee
-[ORG 0x8000]
 
-jmp stage2
+global stage2
+
+jmp stage2      ; Include basically copy and pastes the files
+                ; Jump is here so we go straight to stage2 header
 
 ; Include Files
-%include "boot/stage2/magicNumbers.asm"
+%include "stage2/asm/magicNumbers.asm"
 
-%include "boot/stage2/enableA20.asm"
-%include "boot/stage2/e820map.asm"
-%include "boot/stage2/loadkernel.asm"
-%include "boot/stage2/buildbootinfo.asm"
-%include "boot/stage2/loadgdt.asm"
+%include "stage2/asm/enableA20.asm"
+%include "stage2/asm/e820map.asm"
+%include "stage2/asm/loadkernel.asm"
+%include "stage2/asm/buildbootinfo.asm"
+%include "stage2/asm/loadgdt.asm"
 
 
 ; We need to treat this as a completely new file than Stage 1
@@ -89,10 +91,10 @@ stage2:
     lgdt [cs:gdt_descriptor]
 
     mov eax, cr0
-    or al, 1        ; Set the protection enable bit
+    or eax, 1        ; Set the protection enable bit
     mov cr0, eax    
 
-    jmp 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
+    jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
 
 hang:
     hlt
@@ -349,6 +351,6 @@ high_memory db 'Higher Memory Size: ',0
 hex_string db '0x',0
 map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
 
-%include "boot/stage2/protectedmode.asm"
+%include "stage2/asm/protectedmode.asm"
 
 TIMES 1536 - ($ - $$) db 0

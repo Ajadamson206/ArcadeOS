@@ -4,10 +4,10 @@
 # Tools
 #
 
-CC 		:= gcc 		# Compilier
-ASBL	:= nasm		# Assembler (NASM)
-LD 		:= ld		# Linker
-OBJ 	:= objcopy	# Object Copy
+export CC 		:= gcc 		# Compilier
+export ASBL	:= nasm		# Assembler (NASM)
+export LD 		:= ld		# Linker
+export OBJ 	:= objcopy	# Object Copy
 
 #
 # Settings
@@ -62,7 +62,7 @@ DISK := $(BD)/arcade.img
 #
 
 # These should not be file names anyway, but still good to have
-.PHONY: all clean run
+.PHONY: all clean run bootloader
 
 # Use "make all" to build the project
 all: $(DISK)
@@ -70,10 +70,6 @@ all: $(DISK)
 # Make build directory
 $(BD):
 	mkdir -p $(BD)
-
-# Make the Stage 1 Boot Sector: Raw 512-Byte Binary
-$(STAGE1_BIN): $(STAGE1_SRC) | $(BD)
-	$(ASBL) -f bin $< -o $@
 
 # Assemble Kernel Assembly Objects
 $(BD)/%.o: $(ASM)/%.asm | $(BD)
@@ -104,3 +100,6 @@ run: $(DISK)
 # Cleaning Script to delete all build files
 clean:
 	rm -rf $(BD)
+
+bootloader: $(BD)
+	$(MAKE) -C boot bootloader BD=../$(BD) -n --warn-undefined-variables
