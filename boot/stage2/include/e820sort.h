@@ -26,8 +26,9 @@ int check_e820_order(void);
 
 /**
  * @brief Sort and Merge intervals for the e820 map
- * @return Returns a pointer to the new e820 map location
+ * @param (void *dst): Memory address where the map will be written 
+ * @return Returns the number of entries
  */
-e820_map *sort_memory_map(void);
+u32 sort_memory_map(void *dst);
 
 void test_check(void);

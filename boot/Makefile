@@ -20,6 +20,7 @@ CFLAGS += -ffreestanding
 CFLAGS += -fno-pic 
 CFLAGS += -fno-pie
 CFLAGS += -fno-stack-protector
+CFLAGS += -masm=intel
 # CFLAGS += -nostdlib 
 # CFLAGS += -nostartfiles
 
@@ -48,6 +49,8 @@ S2_CSRC := $(wildcard $(S2_CDIR)/*.c)
 S2_COBJ := $(patsubst $(S2_CDIR)/%.c,$(BD)/%.o,$(S2_CSRC))
 
 S2_ASM_O := $(BD)/stage2.o
+
+S2_PAD	:= $(BD)/stage2.pad.bin
 
 INCL 	:= $(CWD)/stage2/include	# Header Files Location
 
@@ -80,13 +83,19 @@ $(S2_ELF): $(S2_ASM_O) $(S2_COBJ) | $(BD)
 $(S2_OUT): $(S2_ELF) | $(BD)
 	$(OBJ) -O binary $< $@
 
+# Pad S2 to the Next 512 Byte Sector to make loading easier
+$(S2_PAD): $(S2_OUT)
+	@size=$$(stat -c '%s' $<); \
+	pad_to=$$(( ((size + 511) / 512) * 512 )); \
+	$(OBJ) -I binary -O binary --pad-to=$$pad_to --gap-fill=0x00 $< $@
+
 #
 # Build the stage 1 binary file
 #
 
 # Build Stage 1 binary file
-$(S1_OUT): $(S1) $(S2_OUT) | $(BD)
-	@stage2_bytes=$$(stat -c '%s' $(S2_OUT)); \
+$(S1_OUT): $(S1) $(S2_PAD) | $(BD)
+	@stage2_bytes=$$(stat -c '%s' $(S2_PAD)); \
 	stage2_sectors=$$(( (stage2_bytes + 511) / 512 )); \
 	$(ASBL) $(S1) -f bin -DSTAGE2_SECTORS=$$stage2_sectors -o $(S1_OUT)
 

@@ -352,5 +352,3 @@ hex_string db '0x',0
 map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
 
 %include "stage2/asm/protectedmode.asm"
-
-TIMES 1536 - ($ - $$) db 0

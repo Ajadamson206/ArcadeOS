@@ -10,6 +10,8 @@
  */
 
 #include <e820sort.h>
+#include <multiboot.h>
+
 
 __attribute__((noreturn))
 void stage2_c_main(void) {
@@ -21,4 +23,7 @@ void stage2_c_main(void) {
     }    
 
     for(;;) { __asm__ volatile ("hlt"); }
+
+
+    // kernel_jump();
 }

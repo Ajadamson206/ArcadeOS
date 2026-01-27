@@ -45,9 +45,12 @@ int check_e820_order(void) {
     return 1;
 }
 
-e820_map *sort_memory_map(void) {
+/**
+ * Write the entries to dst and return the number of entries
+ */
+u32 sort_memory_map(void *dst) {
     if(*COUNT == 0) {
-        return NULL;
+        return 0;
     }
 
     volatile e820_entry *current_map = E820_START;
@@ -76,5 +79,5 @@ e820_map *sort_memory_map(void) {
     }    
 
 
-    return new_map;
+    return 32;
 }
