@@ -7,6 +7,16 @@ get_map:
     push di
     push si
     
+    ; Get Lower Memory Size
+    xor ax, ax
+    clc
+    
+    int 0x12    ; Stores lower memory size in AX
+
+    jc .error
+
+    mov [lower_mem_size], ax
+
     ; Location 0x009B00 is going to be used to keep track of the number of entries
     xor ax, ax
     mov ds, ax

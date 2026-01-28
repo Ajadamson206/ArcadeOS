@@ -40,12 +40,14 @@ void *tag_bootloader_name(void* struct_pos) {
     return struct_pos + t2->size;
 }
 
+extern u16 lower_mem_size;
+
 void *tag_memory_info(void *struct_pos) {
     tag_type_4* t4 = struct_pos;
     t4->type = 4;
     t4->size = 16;
-    
-
+   
+    t4->mem_lower = lower_mem_size; 
 
     return struct_pos + sizeof(*t4);
 }
