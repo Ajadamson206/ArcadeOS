@@ -23,7 +23,7 @@ jmp stage2      ; Include basically copy and pastes the files
 %include "stage2/asm/loadkernel.asm"
 %include "stage2/asm/buildbootinfo.asm"
 %include "stage2/asm/loadgdt.asm"
-
+%include "stage2/asm/vbepoll.asm"
 
 ; We need to treat this as a completely new file than Stage 1
 ; Only assumption we can make is LBA is compatible
@@ -80,6 +80,9 @@ stage2:
     call printstring
 
     call print_map
+
+    ; Get VBE Info
+    call enable_graphics
 
     ; Load Kernel (INT 13h)
     call loadkernel
