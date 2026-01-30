@@ -3,8 +3,13 @@ global boot_drive
 global lower_mem_size
 global vbe_info_struct
 global vbe_mode_info_struct
+global vbe_current_mode
 
 section .bss
+
+
+vbe_current_mode:
+    resb 2
 
 ; I will parse it all out in a C Struct Later
 ; Only .video_modes will 100% be needed in asm

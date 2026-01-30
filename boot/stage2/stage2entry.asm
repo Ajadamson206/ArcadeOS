@@ -48,6 +48,9 @@ stage2:
     mov si, new_line
     call printstring
 
+    ; Get VBE Info
+    call enable_graphics
+
     ; Move the string to si and print it to screen
     mov si, stage2_string
     call printstring
@@ -80,9 +83,6 @@ stage2:
     call printstring
 
     call print_map
-
-    ; Get VBE Info
-    call enable_graphics
 
     ; Load Kernel (INT 13h)
     call loadkernel

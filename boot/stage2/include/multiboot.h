@@ -156,6 +156,66 @@ struct __tag_type_7 {
 
 typedef struct __tag_type_7 tag_type_7;
 
+struct __vbe_info_structure {
+	char signature[4];      // must be "VESA" to indicate valid VBE support
+	u16 version;			// VBE version; high byte is major version, low byte is minor version
+	u32 oem;			    // segment:offset pointer to OEM
+	u32 capabilities;		// bitfield that describes card capabilities
+	u32 video_modes;		// segment:offset pointer to list of supported video modes
+	u16 video_memory;		// amount of video memory in 64KB blocks
+	u16 software_rev;		// software revision
+	u32 vendor;			    // segment:offset to card vendor string
+	u32 product_name;		// segment:offset to card model name
+	u32 product_rev;		// segment:offset pointer to product revision
+	char reserved[222];		// reserved for future expansion
+	char oem_data[256];		// OEM BIOSes store their strings in this area
+} __attribute__ ((packed));
+
+typedef struct __vbe_info_structure vbe_info_structure;
+
+_Static_assert(sizeof(struct __vbe_info_structure) == 512, "vbe_info_structure is not 512 bytes");
+
+struct __vbe_mode_info_structure {
+	u16 attributes;
+	u8 window_a;
+	u8 window_b;			
+	u16 granularity;
+	u16 window_size;
+	u16 segment_a;
+	u16 segment_b;
+	u32 win_func_ptr;
+	u16 pitch;			// number of bytes per horizontal line
+	u16 width;			// width in pixels
+	u16 height;			// height in pixels
+	u8 w_char;
+	u8 y_char;
+	u8 planes;
+	u8 bpp;			    // bits per pixel in this mode
+	u8 banks;			
+	u8 memory_model;
+	u8 bank_size;
+	u8 image_pages;
+	u8 reserved0;
+
+	u8 red_mask;
+	u8 red_position;
+	u8 green_mask;
+	u8 green_position;
+	u8 blue_mask;
+	u8 blue_position;
+	u8 reserved_mask;
+	u8 reserved_position;
+	u8 direct_color_attribute;
+	u32 framebuffer;		    // physical address of the linear frame buffer
+	u32 off_screen_mem_off;
+	u16 off_screen_mem_size;	// size of memory in the framebuffer but not being displayed on the screen
+	u8 reserved1[206];
+} __attribute__ ((packed));
+
+typedef struct __vbe_mode_info_structure vbe_mode_info_structure;
+
+_Static_assert(sizeof(struct __vbe_mode_info_structure) == 256, "vbe_mode_info_structure is not 256 Bytes");
+
 // WIP
 extern void *tag_vbe(void *struct_pos);
 
@@ -179,7 +239,7 @@ struct __tag_type_8 {
     u64    framebuffer_addr;
     u32    framebuffer_pitch;
     u32    framebuffer_width;
-    u32    framebuffer_heigh;
+    u32    framebuffer_height;
     u8     framebuffer_bpp;
     u8     framebuffer_type;
     u8     reserved;

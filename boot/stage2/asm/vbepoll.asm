@@ -80,7 +80,9 @@ enable_graphics:
     jne .verify_mode
 
     ; Assuming we have the right mode info:
- 
+    
+    mov [vbe_current_mode], dx
+
     ; Set VBE mode
     ; Bios Interrupt Int 0x10 AX=4F02
     ; Input BX = Bits 0-13 mode number; bit 14 enables linear framebuffer;
@@ -96,8 +98,6 @@ enable_graphics:
 
     mov si, vbe_success
     call printstring
-
-    cli
 
     ret
 
