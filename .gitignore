@@ -1,2 +1,6 @@
 build/
 .vscode/
+
+# From Elf Test tool (Should usually be removed, but incase not)
+test.o
+headerPrint.o

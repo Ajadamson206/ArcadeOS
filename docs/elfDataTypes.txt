@@ -1,0 +1,7 @@
+Name            Size    Alignment   Purpose
+Elf32_Addr      4       4           Unsigned program address
+Elf32_Half      2       2           Unsigned medium integer
+Elf32_Off       4       4           Unsigned file offset
+Elf32_Sword     4       4           Signed large integer
+Elf32_Word      4       4           Unsigned large integer
+unsigned char   1       1           Unsigned small integer
