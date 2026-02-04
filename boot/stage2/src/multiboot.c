@@ -67,7 +67,7 @@ void *tag_boot_info(void *struct_pos) {
     return struct_pos + t5->size;
 }
 
-// WIP: Fix sort_memory_map
+// ** sort_memory_map needs testing
 void *tag_memory_map(void *struct_pos) {
     tag_type_6* t6 = struct_pos;
     t6->type = 6;
