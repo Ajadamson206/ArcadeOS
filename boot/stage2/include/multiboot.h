@@ -9,9 +9,15 @@
 #define MAGIC 0x36D76289
 
 /**
- * Where the MB Structure will be written in memory
+ * Magic value stored in the kernel to show that it is a multiboot2
+ * compliant kernel
  */
-#define MB_MEM_LOC 0x00007C00
+#define KERNEL_MAGIC 0xE85250D6
+
+/**
+ * Where the MB2 Structure will be written in memory
+ */
+#define MB2_MEM_LOC 0x00007C00
 
 #define TAG_START   u32 type; \
                     u32 size
@@ -293,7 +299,7 @@ static inline void kernel_jump() {
         "mov ebx, %1\n"
         "jmp 0x00100000"
         :  // No Output
-        : "r" (MAGIC), "r" (MB_MEM_LOC)
+        : "r" (MAGIC), "r" (MB2_MEM_LOC)
         : "eax", "ebx", "memory"
     );
 
@@ -301,5 +307,3 @@ static inline void kernel_jump() {
 }
 
 void *create_tags(u32 flags);
-
-u32 parse_kernel(void);

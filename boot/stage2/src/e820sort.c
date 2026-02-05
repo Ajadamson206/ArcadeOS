@@ -92,7 +92,17 @@ u16 mem_merge_intervals(e820_entry *map_start, u16 size) {
             map_start[i].region_type == map_start[i + 1].region_type) 
         {
             // Merge intervals
-            map_start[i].region_length += map_start[i + 1].region_length;
+            u64 right_end = map_start[i + 1].base_address + map_start[i + 1].region_length;
+            u64 comb_end = (left_end >= right_end)? left_end : right_end;
+
+            map_start[i].region_length = comb_end - map_start[i].base_address;
+
+            // Don't memcopy if it is the last element
+            if(i + 1 == size) {
+                i--;
+                size--;
+                break;
+            }
 
             // Copy remaining elements
             memcopy(map_start + i + 1, map_start + i + 2, sizeof(*map_start) * (size - i - 1));            

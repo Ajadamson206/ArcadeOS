@@ -11,7 +11,7 @@ echo "~~~~~~~Header Print Start~~~~~~~~~~~~~"
 
 echo "~~~~~~~Header Print End~~~~~~~~~~~~~"
 
-readelf -h test.o
+readelf -h -S test.o
 
 rm test.o
 rm headerPrint.o

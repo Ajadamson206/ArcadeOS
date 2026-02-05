@@ -2,6 +2,7 @@
 #include <memcopy.h>
 #include <e820sort.h>
 #include <multiboot.h>
+#include <kernel_parse.h>
 
 #define TAG_START   u32 type; \
                     u32 size
@@ -125,6 +126,8 @@ void *tag_framebuffer(void *struct_pos) {
 void *tag_kernel_elf(void *struct_pos) {
     tag_type_9* t9 = struct_pos;
     t9->type = 9;
+
+    u32 num_elements = parse_elf(t9);
 
     return struct_pos + t9->size;
 }

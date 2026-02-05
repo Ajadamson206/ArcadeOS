@@ -1,5 +1,5 @@
 #include "../../boot/stage2/include/stdint.h"
-#include "../../boot/stage2/include/elf_parse.h"
+#include "../../boot/stage2/include/kernel_parse.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,5 +89,53 @@ int main() {
     Elf32_Half e_shstrndx = buffer->e_shstrndx;
     printf("e_shstrndx: %hu\n", e_shentsize);
 
+    // The section table is at the end of the file
+    u32 numheaders = buffer->e_shnum;
+    u32 current = 0;
+    rewind(elf);
+    fseek(elf, buffer->e_shoff, SEEK_SET);
+
+    while(current < numheaders) {
+
+        Elf32_Shdr *shead = malloc(sizeof(*shead));
+
+        out = fread(shead, sizeof(Elf32_Shdr), 1, elf);
+        if(out == 0) {
+            fprintf(stderr, "Unable to read the section header\n");
+            return 1;
+        }
+   
+        printf("\nCurrent Header: [%u]\n", current++);
+
+        Elf32_Word sh_name = shead->sh_name;
+        printf("sh_name: 0x%X\n", sh_name);
+
+        Elf32_Word sh_type = shead->sh_type;
+        printf("sh_type: 0x%X\n", sh_type);
+
+        Elf32_Word sh_flags = shead->sh_flags;
+        printf("sh_flags: 0x%X\n", sh_flags);
+
+        Elf32_Addr sh_addr = shead->sh_addr;
+        printf("sh_addr: 0x%X\n", sh_addr);
+
+        Elf32_Off sh_offset = shead->sh_offset;
+        printf("sh_offset: %u\n", sh_offset);
+
+        Elf32_Word sh_size = shead->sh_size;
+        printf("sh_size: %u\n", sh_size);
+
+        Elf32_Word sh_link = shead->sh_link;
+        printf("sh_link: %u\n", sh_link);
+
+        Elf32_Word sh_info = shead->sh_info;
+        printf("sh_info: %u\n", sh_info);
+
+        Elf32_Word sh_addralign = shead->sh_addralign;
+        printf("sh_addralign: %u\n", sh_addralign);
+
+        Elf32_Word sh_entsize = shead->sh_entsize;
+        printf("sh_entsize: %u\n", sh_entsize);
+    }
     return 0;
 }

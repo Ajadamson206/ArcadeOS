@@ -32,3 +32,8 @@ int check_e820_order(void);
 u32 sort_memory_map(void *dst);
 
 void test_check(void);
+
+void mem_bubble_sort(e820_entry *map_start, u16 size);
+
+u16 mem_merge_intervals(e820_entry *map_start, u16 size);
+
