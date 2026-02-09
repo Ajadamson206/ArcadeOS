@@ -293,17 +293,19 @@ extern void *tag_kernel_elf(void *struct_pos);
 extern void *create_tags(u32 flags);
 
 __attribute__((noreturn)) 
-static inline void kernel_jump() {    
+static inline void kernel_jump
+(   volatile void* mb2_req_struct, 
+    volatile void* kernel_start ) 
+{    
     __asm__ volatile(
         "mov eax, %0\n"
         "mov ebx, %1\n"
-        "jmp 0x00100000"
+        "mov ecx, %2\n"
+        "jmp ecx\n"
         :  // No Output
-        : "r" (MAGIC), "r" (MB2_MEM_LOC)
-        : "eax", "ebx", "memory"
+        : "r" (MAGIC), "r" (mb2_req_struct), "r" (kernel_start)
+        : "eax", "ebx", "ecx", "memory"
     );
 
     __builtin_unreachable();
 }
-
-void *create_tags(u32 flags);

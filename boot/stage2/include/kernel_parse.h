@@ -84,7 +84,7 @@ typedef struct {
     Elf32_Word p_align;
 } Elf32_Phdr;
 
-extern u32 parse_elf(tag_type_9* mb_tag);
+extern u32 parse_elf_tag(tag_type_9* mb_tag);
 
 /* Mulitboot2 Kernel Headers */
 
@@ -203,3 +203,9 @@ extern void *find_multiboot2_header(void);
  * @return (u32) Bitmask of required Bootloader Structs
  */
 extern u32 parse_mb2_header(volatile mb2_kernel_header *header_start);
+
+/**
+ * Return the memory address of where the kernel's entry function is at
+ * @return (void *) Memory address to the kernel's entry function
+ */
+extern void* calculate_start(void);

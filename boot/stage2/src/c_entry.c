@@ -11,19 +11,21 @@
 
 #include <e820sort.h>
 #include <multiboot.h>
-
+#include <kernel_parse.h>
 
 __attribute__((noreturn))
 void stage2_c_main(void) {
-    volatile unsigned short *vga = (unsigned short*)0xB8000;
-    // vga[2] = 0x2F43; // 'C'
+    void *kernel_mb2_header = find_multiboot2_header();
+    if(kernel_mb2_header == NULL) {
+        goto error;
+    }
 
-    if(check_e820_order()) {
-        vga[2] = 0x1F43;
-    }    
+    u32 tags = parse_mb2_header(kernel_mb2_header);
 
+    void *test = create_tags(tags);
+
+    // kernel_jump(test);
+
+error:
     for(;;) { __asm__ volatile ("hlt"); }
-
-
-    // kernel_jump();
 }

@@ -10,7 +10,7 @@ volatile Elf32_Ehdr *kernel_start = (Elf32_Ehdr *)KERNEL_STAGE_LOC;
 // Parse the kernel elf
 // Write it into mb_tag
 // Return the number of bytes written
-u32 parse_elf(tag_type_9* mb_tag) {
+u32 parse_elf_tag(tag_type_9* mb_tag) {
     mb_tag->num = kernel_start->e_shnum;
     mb_tag->entsize = kernel_start->e_shentsize;
     mb_tag->shndx = kernel_start->e_shstrndx;
@@ -29,6 +29,10 @@ u32 parse_elf(tag_type_9* mb_tag) {
             kernel_start->e_shentsize * kernel_start->e_shnum);
     
     return sizeof(*mb_tag) + (kernel_start->e_shentsize * kernel_start->e_shnum);
+}
+
+void* calculate_start(void) {
+    return NULL;    
 }
 
 void *find_multiboot2_header(void) {
@@ -53,7 +57,7 @@ u32 parse_tags(volatile mb2_kernel_info_req* tag) {
     u32 num_elements = (tag->size - 8) / 4;
 
     u32 requested = 0;
-    volatile u32* req_tags = &(tag->mbi_tag_types);
+    volatile u32* req_tags = tag->mbi_tag_types;
 
     for(u16 i = 0; i < num_elements; i++) {
         if(req_tags[i] >= 32)

@@ -7,14 +7,6 @@
 #define TAG_START   u32 type; \
                     u32 size
 
-struct __multiboot_header {
-    u32 total_size;
-    u32 reserved;   
-} __attribute__ ((packed));
-
-
-typedef struct __multiboot_header multiboot_header;
-
 const char passed_cmdl[] = "";
 
 void *tag_boot_cmdl(void* struct_pos) {
@@ -127,7 +119,7 @@ void *tag_kernel_elf(void *struct_pos) {
     tag_type_9* t9 = struct_pos;
     t9->type = 9;
 
-    u32 num_elements = parse_elf(t9);
+    u32 num_elements = parse_elf_tag(t9);
 
     return struct_pos + t9->size;
 }
@@ -136,8 +128,6 @@ void *tag_kernel_elf(void *struct_pos) {
 
 // Store the multiboot struct where the stage1 bootloader was
 volatile void* multiboot_structure = (void*)0x00007C00;
-
-
 
 void *create_tags(u32 flags) {
     multiboot_header* start = multiboot_structure;

@@ -50,7 +50,7 @@ int check_e820_order(void) {
  * Returns 0 if point1's base address is less than or equal to point2's
  * Returns 1 if point2's base address is greater than point1's
  */
-inline int compare_map_entries(e820_entry *point1, e820_entry *point2) {
+int compare_map_entries(e820_entry *point1, e820_entry *point2) {
     return (point1->base_address > point2->base_address);
 }
 
@@ -77,7 +77,7 @@ void mem_bubble_sort(e820_entry *map_start, u16 size) {
 
 u16 mem_merge_intervals(e820_entry *map_start, u16 size) {
     if(size <= 1)
-        return;
+        return size;
     
     size--;
     u16 i = 0;
