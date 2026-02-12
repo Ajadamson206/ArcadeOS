@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <e820sort.h>
 
 /**
  * Magic value to be stored in EAX when control is passed to Kernel
@@ -14,11 +13,6 @@
  */
 #define KERNEL_MAGIC 0xE85250D6
 
-/**
- * Where the MB2 Structure will be written in memory
- */
-#define MB2_MEM_LOC 0x00007C00
-
 #define TAG_START   u32 type; \
                     u32 size
 
@@ -27,8 +21,21 @@ struct __multiboot_header {
     u32 reserved;   
 } __attribute__ ((packed));
 
-
 typedef struct __multiboot_header multiboot_header;
+
+struct __generic_tag {
+    TAG_START;
+} __attribute__ ((packed));
+
+/**
+ * Generic Tag Used for first finding out what tag
+ * you are looking at.
+ * 
+ * Contains Two Elements:
+ * - u32 Type
+ * - u32 Size
+ */
+typedef struct __generic_tag generic_tag;
 
 /**
  * Type 1 Struct:
@@ -45,8 +52,6 @@ struct __tag_type_1 {
 
 typedef struct __tag_type_1 tag_type_1;
 
-extern void *tag_boot_cmdl(void* struct_pos);
-
 /**
  * Type 2 Struct:
  *      u32     type = 2;
@@ -61,8 +66,6 @@ struct __tag_type_2 {
 } __attribute__ ((packed));
 
 typedef struct __tag_type_2 tag_type_2;
-
-extern void *tag_bootloader_name(void* struct_pos);
 
 /**
  * Skipping Type 3: No boot modules will be loaded
@@ -87,8 +90,6 @@ struct __tag_type_4 {
 
 typedef struct __tag_type_4 tag_type_4;
 
-extern void *tag_memory_info(void *struct_pos);
-
 /**
  * Type 5 Struct:
  *      u32 type = 5
@@ -110,7 +111,14 @@ struct __tag_type_5 {
 
 typedef struct __tag_type_5 tag_type_5;
 
-extern void *tag_boot_info(void *struct_pos);
+struct e820_entry {
+    u64 base_address;
+    u64 region_length;
+    u32 region_type;
+    u32 ext_attr;
+} __attribute__ ((packed));
+
+typedef struct e820_entry e820_entry;
 
 /**
  * Type 6 Struct:
@@ -131,9 +139,6 @@ struct __tag_type_6 {
 } __attribute__ ((packed));
 
 typedef struct __tag_type_6 tag_type_6;
-
-// WIP: Fix sort_memory_map
-extern void *tag_memory_map(void *struct_pos);
 
 /**
  * Type 7 Struct:
@@ -221,9 +226,6 @@ typedef struct __vbe_mode_info_structure vbe_mode_info_structure;
 
 _Static_assert(sizeof(struct __vbe_mode_info_structure) == 256, "vbe_mode_info_structure is not 256 Bytes");
 
-// WIP
-extern void *tag_vbe(void *struct_pos);
-
 /**
  * Type 8 Struct:
  *      u32    type = 8          
@@ -253,9 +255,6 @@ struct __tag_type_8 {
 
 typedef struct __tag_type_8 tag_type_8;
 
-// WIP
-extern void *tag_framebuffer(void *struct_pos);
-
 /**
  * Type 9 Struct:
  *      u32 type = 9
@@ -279,32 +278,14 @@ struct __tag_type_9 {
 
 typedef struct __tag_type_9 tag_type_9;
 
-// WIP: Parse ELF Header
-extern void *tag_kernel_elf(void *struct_pos);
+extern void load_pointers(volatile void *mb_info);
 
-/* No More Tags will be defined after Tag 9 */
+extern tag_type_1 *get_bootcml(void);
+extern tag_type_2 *get_bootloader_name(void);
+extern tag_type_4 *get_mem_info(void);
+extern tag_type_5 *get_bios_boot_dev(void);
+extern tag_type_6 *get_memory_map(void);
+extern tag_type_7 *get_vbe_info(void);
+extern tag_type_8 *get_framebuffer_info(void);
+extern tag_type_9 *get_elf_symbols(void);
 
-/**
- * @brief Create all of the tags requested by the Kernel
- * @param (u32) flags: A bitmask of which tags were requested by the Kernel
- * @return (void *) Pointer to where the tags are stored in memory
- */
-extern void *create_tags(u32 flags);
-
-__attribute__((noreturn)) 
-static inline void kernel_jump
-(   volatile void* mb2_req_struct, 
-    volatile void* kernel_start ) 
-{    
-    __asm__ volatile(
-        "mov eax, %0\n"
-        "mov ebx, %1\n"
-        "mov ecx, %2\n"
-        "jmp ecx\n"
-        :  // No Output
-        : "r" (MAGIC), "r" (mb2_req_struct), "r" (kernel_start)
-        : "eax", "ebx", "ecx", "memory"
-    );
-
-    __builtin_unreachable();
-}

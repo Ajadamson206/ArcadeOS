@@ -33,7 +33,7 @@ LDFLAGS += -nostdlib
 #
 
 CWD := .
-BD ?= ../build
+BD ?= ../build/boot
 
 S2_CDIR := $(CWD)/stage2/src
 S2_ASM  := $(CWD)/stage2/stage2entry.asm

@@ -103,3 +103,6 @@ clean:
 
 bootloader: $(BD)
 	$(MAKE) -C boot bootloader BD=../$(BD) -n --warn-undefined-variables
+
+kernel: $(BD)
+	$(MAKE) -C src kernel BD=../$(BD)/boot -n --warn-undefined-variables

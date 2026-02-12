@@ -2,18 +2,18 @@
 
 #include <stdint.h>
 
-struct e820_entry {
+struct __e820_entry {
     u64 base_address;
     u64 region_length;
     u32 region_type;
     u32 ext_attr;
 } __attribute__ ((packed));
 
-typedef struct e820_entry e820_entry;
+typedef struct __e820_entry e820_entry;
 
 struct e820_map {
-    u16                 count;
-    struct e820_entry   entries[];    
+    u16          count;
+    e820_entry   entries[];    
 } __attribute__ ((packed));
 
 typedef struct e820_map e820_map;
