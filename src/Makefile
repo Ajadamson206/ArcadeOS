@@ -2,10 +2,14 @@
 # Tools
 #
 
-export CC 		?= gcc 		# Compilier
-export ASBL		?= nasm		# Assembler (NASM)
-export LD 		?= ld		# Linker
-export OBJ 		?= objcopy	# Object Copy
+# Compilier
+CC 		?= gcc
+
+# Assembler (NASM)
+ASBL	?= nasm
+
+# Linker
+LD 		?= ld
 
 #
 # Settings
@@ -29,21 +33,47 @@ LDFLAGS += -nostdlib
 # Directories and Filenames
 #
 
-LIB		:= libraries		# C Code Libraries
-INCL 	:= ../include		# Header Files Location
+# C Code Libraries
+LIB		:= libraries
+
+# Header Files Location
+INCL 	:= ../include
 # ASM 	:= $(WD)/asm		# Assembly Files
-BD 		?= ../build/kernel	# Output Directory
+BD 		:= ../build/kernel# Output Directory
+
+# Linker Script
+K_LD := kernel_linker.ld
 
 # Kernel Entry
-KENTRY := kernel-entry.asm
+KENTRY    := kernel-entry.asm
+KENTRY_O  := $(BD)/kernel-entry.o
 
-# C Library Macros
-CLIB 	:= $(wildcard $(LIB)/*.c)				    # Grab all C Files
-CLIB-O  := $(patsubst $(LIB)/%.c,$(BD)/%.o,$(CLIB)) # Create Copy Filenames that end in .o $(patsubst pattern,replacement,text)
+# C Library Sources/Objects
+CLIB   := $(wildcard $(LIB)/*.c)
+CLIB_O := $(patsubst $(LIB)/%.c,$(BD)/%.o,$(CLIB))
 
-# Output Files
+# Output
 ELF := $(BD)/arcade.elf
-
 .PHONY: kernel
 
 kernel: $(ELF)
+
+$(BD):
+	mkdir -p $@
+
+# Assemble kernel entry -> object in BD
+$(KENTRY_O): $(KENTRY) | $(BD)
+	$(ASBL) -f elf32 $< -o $@
+
+# Compile libraries/*.c -> BD/*.o
+$(BD)/%.o: $(LIB)/%.c | $(BD)
+	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
+
+# Compile arcade-main
+
+# Link
+$(ELF): $(CLIB_O) $(KENTRY_O) | $(BD)
+	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O)
+
+clean:
+	rm -rf $(BD)

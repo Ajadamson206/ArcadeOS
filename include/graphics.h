@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <bootinfo.h>
 
 typedef struct {
     u8 red;

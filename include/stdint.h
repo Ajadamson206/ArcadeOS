@@ -30,9 +30,6 @@ typedef unsigned int  u32;
 typedef signed long long    i64;
 typedef unsigned long long  u64;
 
-// NULL
-#define NULL ((void*)0) 
-
 /**
  * Limits
  */
