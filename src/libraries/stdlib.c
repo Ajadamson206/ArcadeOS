@@ -135,17 +135,25 @@ void abort(void) {
     __builtin_unreachable();
 }
 
-int atexit(void (*func)(void));
-char* getenv(const char* name);
-int system(const char* string);
+int atexit(void (*func)(void)) {
+    exit_func = func;
+
+    return 0;
+}
+
+char* getenv(const char* name) {
+    return NULL;
+}
+
 void* bsearch(const void* key, void* base, size_t nmemb, size_t size,
                int (*compar)(const void* , const void* ));
+
 void qsort(void* base, size_t nmemb, size_t size,
            int (*compar)(const void* , const void* ));
+
 int abs(int j);
 long int labs(long int j);
 long long int llabs(long long int j);
 div_t div(int numer, int denom);
 ldiv_t ldiv(long int numer, long int denom);
 lldiv_t lldiv(long long int numer, long long int denom);
-int mblen(const char* s, size_t n);

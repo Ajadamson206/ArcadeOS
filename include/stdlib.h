@@ -28,7 +28,7 @@ typedef struct {
 
 typedef u32 wchar_t;
 
-inline int isdigit(char c) {
+static inline int isdigit(char c) {
     return (c >= '0' && c <= '9');
 }
 
