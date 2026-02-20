@@ -1,4 +1,5 @@
 #include <bootinfo.h>
+#include <stdlib.h>
 
 // Store pointers to the boot information
 static volatile void *tags[10] = {NULL};

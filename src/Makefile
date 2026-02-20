@@ -69,7 +69,6 @@ $(KENTRY_O): $(KENTRY) | $(BD)
 $(BD)/%.o: $(LIB)/%.c | $(BD)
 	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
 
-# Compile arcade-main
 
 # Link
 $(ELF): $(CLIB_O) $(KENTRY_O) | $(BD)

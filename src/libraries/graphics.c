@@ -28,3 +28,13 @@ void clear_screen(void) {
         }
     }
 }
+
+void fill_screen(u32 color) {
+    volatile u32 *lfb = lfb_start;
+    for(u32 height = 0; height < frame_buffer_info->framebuffer_height; height++) {
+        for(u32 width = 0; width < frame_buffer_info->framebuffer_width; width++) {
+            *lfb = color;
+            lfb++;   
+        }
+    }
+}

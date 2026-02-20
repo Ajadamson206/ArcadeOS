@@ -131,6 +131,8 @@ void abort(void) {
 
     // Power off QEMU Virtual Machine
     outw(0x604, 0x2000);
+
+    __builtin_unreachable();
 }
 
 int atexit(void (*func)(void));
