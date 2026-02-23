@@ -21,9 +21,9 @@ jmp stage2      ; Include basically copy and pastes the files
 %include "stage2/asm/enableA20.asm"
 %include "stage2/asm/e820map.asm"
 %include "stage2/asm/buildbootinfo.asm"
-%include "stage2/asm/unreal.asm"
 %include "stage2/asm/loadkernel.asm"
 %include "stage2/asm/vbepoll.asm"
+%include "stage2/asm/loadgdt.asm"
 
 
 ; We need to treat this as a completely new file than Stage 1
@@ -38,7 +38,7 @@ stage2:
     mov ss, ax
     
     ; Set the stack pointer
-    mov sp, 0x9000 ; Stack Pointer needs to change since we moved memory locations
+    mov sp, 0x7C00 ; Stack Pointer needs to change since we moved memory locations
     cld    
 
     ; Store the BootDrive
@@ -85,14 +85,20 @@ stage2:
 
     call print_map
 
+    ; Load the kernel
+    call loadkernel
+
     ; Build boot-info struct
     call buildbootinfo
 
-    mov si, test1
-    call printstring
+   ; Load Global Descriptor Table, set cr0.pe, far jump into 32-bit
+    lgdt [cs:gdt_descriptor]
 
-    ; Enter Unreal Mode
-    jmp unreal_mode
+    mov eax, cr0
+    or eax, 1        ; Set the protection enable bit
+    mov cr0, eax    
+
+    jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
 
 .unreal_fin:
     ; Load the Kernel
@@ -354,34 +360,5 @@ low_memory db 'Lower Memory Size: ',0
 high_memory db 'Higher Memory Size: ',0
 hex_string db '0x',0
 map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
-test1 db "Unreal Precall",13,10,0
-test2 db "Entered Unreal Mode",13,10,0
-
-
-; Bits  0–15   : Limit (0–15)
-; Bits 16–31   : Base  (0–15)
-; Bits 32–39   : Base  (16–23)
-; Bits 40–47   : Access Byte
-; Bits 48–51   : Limit (16–19)
-; Bits 52–55   : Flags
-; Bits 56–63   : Base  (24–31)
-
-; I am using a simplified model (Ring 0 & No Memory Protection) so only these entries are required
-; Null Descriptor (All Zeros)
-; Kernel Mode Code Segment
-; Kernel Mode Data Segment
-
-align 8
-gdt_start:
-    dq 0x0000000000000000   ; Null Descriptor (All Zeros)
-    
-    dq 0x00CF9A000000FFFF   ; Kernel Mode Code Segment
-
-    dq 0x00CF92000000FFFF   ; Kernel Mode Data Segment
-gdt_end:
-
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1
-    dd gdt_start
 
 %include "stage2/asm/protectedmode.asm"

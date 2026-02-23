@@ -9,15 +9,20 @@ pmode_entry:
     ; set segment registers, set esp (32-bit stack pointer), cld
     xor eax, eax
 
-    ; Enter protected mode (CR0.PE = 1)
-    mov eax, cr0
-    or eax, 1
-    mov cr0, eax
+    mov ax, 0x10        ; Data Segment Part of GDT 
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax
 
-    ; Update Stack
-    mov esp, 0x0009F000
+    ; fuck it move the stack to a weird spot (We will change it in the kernel)
+    mov esp, 0x01000000
     and esp, 0xFFFFFFF0
     cld
+
+    mov ecx, 0x1F4B1F4F
+    mov dword [0xB8000], 0x1F4B1F4F  ; OK
 
     ; Call stage2_c_main (32-bit C code, but still in bootloader process)
     call stage2_c_main
@@ -25,4 +30,3 @@ pmode_entry:
 .hang:
     hlt
     jmp .hang
-

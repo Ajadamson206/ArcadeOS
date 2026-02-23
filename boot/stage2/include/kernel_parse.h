@@ -209,3 +209,36 @@ extern u32 parse_mb2_header(volatile mb2_kernel_header *header_start);
  * @return (void *) Memory address to the kernel's entry function
  */
 extern void* calculate_start(void);
+
+extern const u32 KERNEL_SECTORS;
+
+/**
+ * Copies the kernel to a higher memory location
+ */
+static inline void move_kernel(void) {
+    volatile u32* src = (volatile void*)0x0000A000u;
+    volatile u32* dst = (volatile void*)0x00200000u;
+
+    u32 count = KERNEL_SECTORS * (512u / 4u); // Multiply by 128 b/c 512/4 = 128
+    while(count--) {
+        *dst++ = *src++;
+    }
+}
+
+/**
+ * Checks for the ELF Header at the Kernel Staging location
+ * @returns 1: Found the ELF Header
+ * 0: Did not find the ELF Header
+ */
+static inline int check_kernel_stage(void) {
+    return *(volatile u32 *)0x0000A000u == 0x464C457Fu; // 7F E L F
+}
+
+/**
+ * Checks for the ELF Header at the Kernel Main location
+ * @returns 1: Found the ELF Header
+ * 0: Did not find the ELF Header
+ */
+static inline int check_kernel(void) {
+    return *(volatile u32 *)0x00200000u == 0x464C457Fu; // 7F E L F
+}

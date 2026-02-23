@@ -17,7 +17,7 @@
 /**
  * Where the MB2 Structure will be written in memory
  */
-#define MB2_MEM_LOC 0x00200000
+#define MB2_MEM_LOC 0x00100000
 
 #define TAG_START   u32 type; \
                     u32 size

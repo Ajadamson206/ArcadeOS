@@ -4,6 +4,7 @@ global lower_mem_size
 global vbe_info_struct
 global vbe_mode_info_struct
 global vbe_current_mode
+global KERNEL_SECTORS
 
 section .bss
 

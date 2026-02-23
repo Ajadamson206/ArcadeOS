@@ -37,7 +37,8 @@ void* calculate_start(void) {
 }
 
 void *find_multiboot2_header(void) {
-    volatile u32 *magic = (volatile u32 *)kernel_start;
+    // Skip to MB2 Header (It should be first)
+    volatile u32 *magic = (volatile u32 *)((volatile void*)(kernel_start) + kernel_start->e_shoff);
 
     // Kernel header should start below 32768 Bytes
     volatile u32 *mb2_end = magic + (MB2_MAX_DEPTH / 4); // Check 4 Bytes at a time
