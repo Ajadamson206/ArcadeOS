@@ -108,7 +108,7 @@ loadkernel:
     mov dword [0xB8000], ecx
 
 .done:
-    ret
+    jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
 
 .disk_fail:
     mov ecx, 0x1F4B1F4F

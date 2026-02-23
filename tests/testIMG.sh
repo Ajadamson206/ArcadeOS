@@ -2,6 +2,8 @@
 
 set -e
 
+make clean && make all
+
 dd if=/dev/zero of=build/arcadeOS.img bs=512 count=128 status=none
 dd if=build/boot/stage1.bin of=build/arcadeOS.img bs=512 conv=notrunc status=none
 dd if=build/boot/stage2.pad.bin of=build/arcadeOS.img bs=512 seek=1 conv=notrunc status=none
