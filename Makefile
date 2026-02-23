@@ -41,6 +41,8 @@ LDFLAGS += -T ../linker.ld
 
 BD := build
 
+DISK := $(BD)/arcadeOS.img
+
 #
 # Scripts
 #
@@ -63,7 +65,13 @@ clean:
 	rm -rf $(BD)
 
 bootloader: $(BD)
-	$(MAKE) -C boot bootloader BD=../$(BD)/boot -n --warn-undefined-variables
+	$(MAKE) -C boot bootloader BD=../$(BD)/boot --warn-undefined-variables
 
 kernel: $(BD)
-	$(MAKE) -C src kernel BD=../$(BD)/kernel -n --warn-undefined-variables
+	$(MAKE) -C src kernel BD=../$(BD)/kernel --warn-undefined-variables
+
+$(DISK):
+	dd if=/dev/zero of=$@ bs=512 count=128 status=none;\
+	dd if=build/boot/stage1.bin of=$@ bs=512 conv=notrunc status=none;\ 
+	dd if=build/boot/stage2.pad.bin of=$@ bs=512 seek=1 conv=notrunc status=none;\ 
+	dd if=build/kernel/arcade.elf of=$@ bs=512 seek=12 conv=notrunc status=none

@@ -24,6 +24,7 @@ jmp stage2      ; Include basically copy and pastes the files
 %include "stage2/asm/buildbootinfo.asm"
 %include "stage2/asm/loadgdt.asm"
 %include "stage2/asm/vbepoll.asm"
+%include "stage2/asm/unreal.asm"
 
 ; We need to treat this as a completely new file than Stage 1
 ; Only assumption we can make is LBA is compatible
@@ -49,7 +50,7 @@ stage2:
     call printstring
 
     ; Get VBE Info
-    call enable_graphics
+    ;call enable_graphics
 
     ; Move the string to si and print it to screen
     mov si, stage2_string
@@ -84,18 +85,18 @@ stage2:
 
     call print_map
 
-    ; Load Kernel (INT 13h)
-    call loadkernel
-
     ; Build boot-info struct
     call buildbootinfo
 
-    ; Load Global Descriptor Table, set cr0.pe, far jump into 32-bit
-    lgdt [cs:gdt_descriptor]
+.b4_unreal:
 
-    mov eax, cr0
-    or eax, 1        ; Set the protection enable bit
-    mov cr0, eax    
+    ; Enter Unreal Mode
+    call unreal_mode
+
+.unreal_fin:
+
+    ; Load the Kernel
+    call loadkernel
 
     jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
 

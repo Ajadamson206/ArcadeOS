@@ -55,7 +55,7 @@ S2_PAD	:= $(BD)/stage2.pad.bin
 INCL 	:= $(CWD)/stage2/include	# Header Files Location
 
 # Build the Stage 2 Bootloader First
-.PHONY: bootloader test
+.PHONY: bootloader test debug
 
 bootloader: $(S1_OUT)
 
@@ -69,11 +69,11 @@ $(BD):
 
 # Assemble Stage 2 Entry
 $(S2_ASM_O): $(S2_ASM) | $(BD)
-	$(ASBL) -f elf32 $< -o $(S2_ASM_O)
+	$(ASBL) -f elf32 -g -F dwarf $< -o $(S2_ASM_O)
 
 # Compile Stage 2 C Files
 $(BD)/%.o: $(S2_CDIR)/%.c | $(BD)
-	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
+	$(CC) -I$(INCL) $(CFLAGS) -g -c $< -o $@
 
 # Link Stage 2 Elf
 $(S2_ELF): $(S2_ASM_O) $(S2_COBJ) | $(BD)
@@ -98,5 +98,3 @@ $(S1_OUT): $(S1) $(S2_PAD) | $(BD)
 	@stage2_bytes=$$(stat -c '%s' $(S2_PAD)); \
 	stage2_sectors=$$(( (stage2_bytes + 511) / 512 )); \
 	$(ASBL) $(S1) -f bin -DSTAGE2_SECTORS=$$stage2_sectors -o $(S1_OUT)
-
-

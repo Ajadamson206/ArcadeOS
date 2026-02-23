@@ -17,7 +17,7 @@
 /**
  * Where the MB2 Structure will be written in memory
  */
-#define MB2_MEM_LOC 0x00007C00
+#define MB2_MEM_LOC 0x00200000
 
 #define TAG_START   u32 type; \
                     u32 size
@@ -280,16 +280,17 @@ struct __tag_type_9 {
 typedef struct __tag_type_9 tag_type_9;
 
 // WIP: Parse ELF Header
-extern void *tag_kernel_elf(void *struct_pos);
+extern void *tag_kernel_elf(void *struct_pos, void **e_entry);
 
 /* No More Tags will be defined after Tag 9 */
 
 /**
  * @brief Create all of the tags requested by the Kernel
  * @param (u32) flags: A bitmask of which tags were requested by the Kernel
+ * @param (void **) e_entry: A pointer to where the entry address will be stored
  * @return (void *) Pointer to where the tags are stored in memory
  */
-extern void *create_tags(u32 flags);
+extern void *create_tags(u32 flags, void **e_entry);
 
 __attribute__((noreturn)) 
 static inline void kernel_jump

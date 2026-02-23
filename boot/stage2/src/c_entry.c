@@ -22,9 +22,10 @@ void stage2_c_main(void) {
 
     u32 tags = parse_mb2_header(kernel_mb2_header);
 
-    void *test = create_tags(tags);
+    void **kernel_start; 
+    void *tag_ptr = create_tags(tags, kernel_start);
 
-    // kernel_jump(test);
+    kernel_jump(tag_ptr, *kernel_start);
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }

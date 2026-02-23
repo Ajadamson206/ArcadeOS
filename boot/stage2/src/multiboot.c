@@ -115,11 +115,11 @@ void *tag_framebuffer(void *struct_pos) {
 }
 
 // WIP: Parse ELF Header
-void *tag_kernel_elf(void *struct_pos) {
+void *tag_kernel_elf(void *struct_pos, void **e_entry) {
     tag_type_9* t9 = struct_pos;
     t9->type = 9;
 
-    u32 num_elements = parse_elf_tag(t9);
+    u32 num_elements = parse_elf_tag(t9, e_entry);
 
     return struct_pos + t9->size;
 }
@@ -127,9 +127,9 @@ void *tag_kernel_elf(void *struct_pos) {
 
 
 // Store the multiboot struct where the stage1 bootloader was
-volatile void* multiboot_structure = (void*)0x00007C00;
+volatile void* multiboot_structure = (void*)0x00200000;
 
-void *create_tags(u32 flags) {
+void *create_tags(u32 flags, void **e_entry) {
     multiboot_header* start = multiboot_structure;
     start->reserved = 0;
     multiboot_structure += sizeof(*start); // Increment the multiboot struct
@@ -171,7 +171,7 @@ void *create_tags(u32 flags) {
 
     // Tag 9
     if(flags & 1<<8) {
-        multiboot_structure = tag_kernel_elf(multiboot_structure);
+        multiboot_structure = tag_kernel_elf(multiboot_structure, e_entry);
     }
 
     // Calculate Size by finding the length of memory used

@@ -58,7 +58,7 @@ static const struct {
     .tag1 = {
         .type = 1,
         .flags = 0,
-        .size = 36,
+        .size = sizeof(mb2_header.tag1),
         .tag_types = { 1u, 2u, 4u, 5u, 6u, 7u, 8u, 9u }
     },
     .tag2 = {

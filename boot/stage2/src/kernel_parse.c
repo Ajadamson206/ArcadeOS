@@ -10,11 +10,12 @@ volatile Elf32_Ehdr *kernel_start = (Elf32_Ehdr *)KERNEL_STAGE_LOC;
 // Parse the kernel elf
 // Write it into mb_tag
 // Return the number of bytes written
-u32 parse_elf_tag(tag_type_9* mb_tag) {
+u32 parse_elf_tag(tag_type_9* mb_tag, void **e_entry) {
     mb_tag->num = kernel_start->e_shnum;
     mb_tag->entsize = kernel_start->e_shentsize;
     mb_tag->shndx = kernel_start->e_shstrndx;
     mb_tag->reserved = 0;
+    *e_entry = (void*)kernel_start->e_entry;
 
     // Byte-for-Byte copy of the ELF Section Header Table
     // mb_tag->section_headers

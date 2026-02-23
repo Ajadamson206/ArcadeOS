@@ -84,7 +84,7 @@ typedef struct {
     Elf32_Word p_align;
 } Elf32_Phdr;
 
-extern u32 parse_elf_tag(tag_type_9* mb_tag);
+extern u32 parse_elf_tag(tag_type_9* mb_tag, void **e_entry);
 
 /* Mulitboot2 Kernel Headers */
 
