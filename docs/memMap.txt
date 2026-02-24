@@ -1,0 +1,4 @@
+Memory Map:
+0x7C00 - 0x7E00: Stage 1 Bootloader
+0x8000 - 0x9800: Stage 2 Bootloader
+0xA000 - ....  : Kernel Staging

@@ -20,13 +20,8 @@ void stage2_c_main(void) {
         vga[2] = 0x2F43; // 'C'
     }
 
-
     // First thing to do is to copy the kernel
-    move_kernel();
-
-    if(check_kernel()) {
-        vga[3] = 0x1F43; // 'C'
-    }
+    void *kernel_start = move_kernel();
 
     void *kernel_mb2_header = find_multiboot2_header();
     if(kernel_mb2_header == NULL) {
@@ -38,10 +33,9 @@ void stage2_c_main(void) {
 
     u32 tags = parse_mb2_header(kernel_mb2_header);
 
-    void **kernel_start; 
-    void *tag_ptr = create_tags(tags, kernel_start);
+    void *tag_ptr = create_tags(tags);
 
-    kernel_jump(tag_ptr, *kernel_start);
+    kernel_jump(tag_ptr, kernel_start);
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }

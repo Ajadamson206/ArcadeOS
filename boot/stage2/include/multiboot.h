@@ -6,18 +6,18 @@
 /**
  * Magic value to be stored in EAX when control is passed to Kernel
  */
-#define MAGIC 0x36D76289
+#define MAGIC 0x36D76289u
 
 /**
  * Magic value stored in the kernel to show that it is a multiboot2
  * compliant kernel
  */
-#define KERNEL_MAGIC 0xE85250D6
+#define KERNEL_MAGIC 0xE85250D6u
 
 /**
  * Where the MB2 Structure will be written in memory
  */
-#define MB2_MEM_LOC 0x00100000
+#define MB2_MEM_LOC 0x00100000u
 
 #define TAG_START   u32 type; \
                     u32 size
@@ -287,10 +287,9 @@ extern void *tag_kernel_elf(void *struct_pos, void **e_entry);
 /**
  * @brief Create all of the tags requested by the Kernel
  * @param (u32) flags: A bitmask of which tags were requested by the Kernel
- * @param (void **) e_entry: A pointer to where the entry address will be stored
  * @return (void *) Pointer to where the tags are stored in memory
  */
-extern void *create_tags(u32 flags, void **e_entry);
+extern void *create_tags(u32 flags);
 
 __attribute__((noreturn)) 
 static inline void kernel_jump

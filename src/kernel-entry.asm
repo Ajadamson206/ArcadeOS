@@ -13,7 +13,7 @@ _kernel_start:
 
     push ebx
     push eax
-    jmp kernel_main
+    call kernel_main
 
 .hang:
     cli

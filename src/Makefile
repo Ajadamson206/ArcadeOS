@@ -67,8 +67,7 @@ $(KENTRY_O): $(KENTRY) | $(BD)
 
 # Compile libraries/*.c -> BD/*.o
 $(BD)/%.o: $(LIB)/%.c | $(BD)
-	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
-
+	$(CC) -I$(INCL) $(CFLAGS) -g -c $< -o $@
 
 # Link
 $(ELF): $(CLIB_O) $(KENTRY_O) | $(BD)

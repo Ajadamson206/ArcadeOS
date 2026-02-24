@@ -5,17 +5,25 @@
 // Kernel was written at 0x00200000
 #define KERNEL_STAGE_LOC 0x00200000
 
-volatile Elf32_Ehdr *kernel_start = (Elf32_Ehdr *)KERNEL_STAGE_LOC;
-
 // Parse the kernel elf
 // Write it into mb_tag
 // Return the number of bytes written
 u32 parse_elf_tag(tag_type_9* mb_tag, void **e_entry) {
+    volatile Elf32_Ehdr *kernel_start = (volatile Elf32_Ehdr * )KERNEL_STAGE_LOC;
+
+    if (kernel_start->e_ident[0] != 0x7F || kernel_start->e_ident[1] != 'E'  ||
+        kernel_start->e_ident[2] != 'L'  || kernel_start->e_ident[3] != 'F' ) {
+        
+        // Could not find the elf header
+        *e_entry = NULL;
+        return 0;
+    }
+
     mb_tag->num = kernel_start->e_shnum;
     mb_tag->entsize = kernel_start->e_shentsize;
     mb_tag->shndx = kernel_start->e_shstrndx;
     mb_tag->reserved = 0;
-    *e_entry = (void*)kernel_start->e_entry;
+    *e_entry = (void*)(kernel_start->e_entry);
 
     // Byte-for-Byte copy of the ELF Section Header Table
     // mb_tag->section_headers
@@ -37,18 +45,14 @@ void* calculate_start(void) {
 }
 
 void *find_multiboot2_header(void) {
-    // Skip to MB2 Header (It should be first)
-    volatile u32 *magic = (volatile u32 *)((volatile void*)(kernel_start) + kernel_start->e_shoff);
+    volatile u8 *base = (volatile u8 *)KERNEL_STAGE_LOC;
+    volatile u8 *end  = base + MB2_MAX_DEPTH;
 
-    // Kernel header should start below 32768 Bytes
-    volatile u32 *mb2_end = magic + (MB2_MAX_DEPTH / 4); // Check 4 Bytes at a time
-
-    while(magic <= mb2_end) {
-        if(*magic == KERNEL_MAGIC) {
-            return magic;
+    // MB2 header must be 8-byte aligned
+    for (volatile u8 *p = base; p + 4 <= end; p += 8) {
+        if (*(volatile u32 *)p == KERNEL_MAGIC) {
+            return (void *)p;
         }
-
-        magic++;
     }
 
     return NULL;
@@ -63,7 +67,7 @@ u32 parse_tags(volatile mb2_kernel_info_req* tag) {
 
     for(u16 i = 0; i < num_elements; i++) {
         if(req_tags[i] >= 32)
-            continue;;
+            continue;
 
         requested |= 1<<req_tags[i];
     }
@@ -100,4 +104,5 @@ u32 parse_mb2_header(volatile mb2_kernel_header *header_start) {
         tags += cur_tag->size;
     }
 
+    return 0xFFFFFFFF; // Give up and just request all tags
 }

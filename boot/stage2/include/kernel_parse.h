@@ -214,15 +214,24 @@ extern const u32 KERNEL_SECTORS;
 
 /**
  * Copies the kernel to a higher memory location
+ * @return Memory Address of Kernel Entry Point
  */
-static inline void move_kernel(void) {
-    volatile u32* src = (volatile void*)0x0000A000u;
-    volatile u32* dst = (volatile void*)0x00200000u;
+static inline void *move_kernel(void) {
+    // Find where the sections start
+    volatile Elf32_Ehdr *e_hdr = (volatile Elf32_Ehdr *)0x0000A000u;
+    volatile Elf32_Shdr *s_hdr = (volatile Elf32_Shdr *)(((volatile u8*)e_hdr) + e_hdr->e_shoff + e_hdr->e_shentsize);
 
-    u32 count = KERNEL_SECTORS * (512u / 4u); // Multiply by 128 b/c 512/4 = 128
+    u32 ret = e_hdr->e_entry;
+
+    volatile u32 *src = (volatile u32 *)(s_hdr->sh_offset + 0x0000A000u);
+    volatile u32 *dst = (volatile void*)0x00200000u;
+
+    u32 count = (e_hdr->e_shoff - s_hdr->sh_offset) / 4;
     while(count--) {
         *dst++ = *src++;
     }
+
+    return (void *)ret;
 }
 
 /**

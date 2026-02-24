@@ -61,4 +61,4 @@ lower_mem_size:
 
 hex_conv db '0123456789ABCDEF'  ; Map for converting from binary -> ASCII Hex
 KERNEL_BYTES equ 10000          ; Size of Kernel in Bytes
-KERNEL_SECTORS equ 18              ; Number of Sectors the Kernel uses (ceil[number of bytes / 512]) 
+KERNEL_SECTORS equ 37              ; Number of Sectors the Kernel uses (ceil[number of bytes / 512]) 
