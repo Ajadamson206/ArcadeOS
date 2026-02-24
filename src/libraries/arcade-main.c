@@ -12,7 +12,7 @@ void kernel_main(u32 magic, void *mb_info) {
 
     set_framebuffer(get_framebuffer_info());
 
-    clear_screen();
+    fill_screen(RED);
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }
