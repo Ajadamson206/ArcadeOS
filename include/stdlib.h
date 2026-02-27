@@ -21,10 +21,10 @@ typedef struct {
     long rem;
 } ldiv_t;
 
-typedef struct {
-    long long quot;
-    long long rem;
-} lldiv_t;
+// typedef struct {
+//     long long quot;
+//     long long rem;
+// } lldiv_t;
 
 typedef u32 wchar_t;
 
@@ -81,5 +81,5 @@ extern long int labs(long int j);
 extern long long int llabs(long long int j);
 extern div_t div(int numer, int denom);
 extern ldiv_t ldiv(long int numer, long int denom);
-extern lldiv_t lldiv(long long int numer, long long int denom);
+// extern lldiv_t lldiv(long long int numer, long long int denom);
 extern int mblen(const char* s, size_t n);

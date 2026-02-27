@@ -146,14 +146,51 @@ char* getenv(const char* name) {
 }
 
 void* bsearch(const void* key, void* base, size_t nmemb, size_t size,
-               int (*compar)(const void* , const void* ));
+               int (*compar)(const void* , const void* )) {
+    void* left = base;
+    void* right = (u8*)base + (nmemb * size);
+    
+    while( left < right ) {
+        void* middle = ((right - left) / (2 * size)) + left;
+        int comp = compar(middle, key);
+        if(comp > 0) {
+            left = ((u8*)middle) - size;
+        } else if( comp < 0 ) {
+            right = ((u8*)middle) + size;
+        } else {
+            return middle;
+        }
+    }
+    
+    return NULL;    
+}
 
 void qsort(void* base, size_t nmemb, size_t size,
            int (*compar)(const void* , const void* ));
 
-int abs(int j);
-long int labs(long int j);
-long long int llabs(long long int j);
-div_t div(int numer, int denom);
-ldiv_t ldiv(long int numer, long int denom);
-lldiv_t lldiv(long long int numer, long long int denom);
+int abs(int j) {
+    return (j < 0)? j * -1 : j;
+}
+
+long int labs(long int j) {
+    return (j < 0)? j * -1 : j;
+}
+
+long long int llabs(long long int j) {
+    return (j < 0)? j * -1 : j;
+}
+
+div_t div(int numer, int denom) {
+    div_t ret = {numer / denom, numer % denom};
+    return ret;
+}
+
+ldiv_t ldiv(long int numer, long int denom) {
+    ldiv_t ret = {numer / denom, numer % denom};
+    return ret;
+}
+
+// lldiv_t lldiv(long long int numer, long long int denom) {
+//     lldiv_t ret = {numer / denom, numer % denom};
+//     return ret;
+// }
