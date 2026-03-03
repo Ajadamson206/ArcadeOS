@@ -11,12 +11,15 @@ struct __e820_entry {
 
 typedef struct __e820_entry e820_entry;
 
-struct e820_map {
-    u16          count;
-    e820_entry   entries[];    
+struct __e820_map {
+    u16         count;
+    e820_entry  entries[];    
 } __attribute__ ((packed));
 
-typedef struct e820_map e820_map;
+typedef struct __e820_map e820_map;
+
+extern const u16 mem_map_entries;
+static volatile e820_entry *E820_START = (e820_entry*)0x00009B00;
 
 /**
  * @brief Check if the e820 map is sorted already

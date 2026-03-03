@@ -6,25 +6,7 @@
  */
 #include <stdint.h>
 #include <memcopy.h>
-
-struct __e820_entry {
-    u64 base_address;
-    u64 region_length;
-    u32 region_type;
-    u32 ext_attr;
-} __attribute__ ((packed));
-
-typedef struct __e820_entry e820_entry;
-
-struct __e820_map {
-    u16         count;
-    e820_entry  entries[];    
-} __attribute__ ((packed));
-
-typedef struct __e820_map e820_map;
-
-volatile u16 *COUNT = (u16*)0x00009B00;
-volatile e820_entry *E820_START = (e820_entry*)0x00009C00;
+#include <e820sort.h>
 
 void test_check(void) {
     E820_START->region_length += 200;
@@ -32,7 +14,7 @@ void test_check(void) {
 
 int check_e820_order(void) {
     volatile e820_entry *map = E820_START;
-    u16 count = (*COUNT) - 1;
+    u16 count = (mem_map_entries) - 1;
 
     for(u16 start = 0; start < count; start++) {
         u64 left_end = map[start].base_address + map[start].region_length;
@@ -54,14 +36,16 @@ int compare_map_entries(e820_entry *point1, e820_entry *point2) {
     return (point1->base_address > point2->base_address);
 }
 
+static e820_entry temp;
+
 void mem_bubble_sort(e820_entry *map_start, u16 size) {
     if(size <= 1)
         return;
 
-    e820_entry temp = {0};
     size--;
     u16 num_swaps = 0;
     do {
+        num_swaps = 0;
         for(u16 left = 0; left < size; left++) {
             // Swap the entries if right is bigger than left
             if(compare_map_entries(map_start + left, map_start + left + 1)) {
@@ -120,15 +104,15 @@ u16 mem_merge_intervals(e820_entry *map_start, u16 size) {
  * Write the entries to dst and return the number of entries
  */
 u32 sort_memory_map(void *dst) {
-    if(*COUNT == 0) {
+    if(mem_map_entries == 0) {
         return 0;
     }
     
     // Sort the memory map
-    mem_bubble_sort(E820_START, *COUNT);
+    mem_bubble_sort(E820_START, mem_map_entries); // What is causing the issue
 
     // Merge intervals
-    u16 new_size = mem_merge_intervals(E820_START, *COUNT);
+    u16 new_size = mem_merge_intervals(E820_START, mem_map_entries);
 
     // Write everything to dst
     memcopy(dst, E820_START, sizeof(*E820_START) * new_size);

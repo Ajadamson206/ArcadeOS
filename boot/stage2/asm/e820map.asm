@@ -17,16 +17,14 @@ get_map:
 
     mov [lower_mem_size], ax
 
-    ; Location 0x009B00 is going to be used to keep track of the number of entries
-    xor ax, ax
-    mov ds, ax
+    ; External Variable mem_map_entries to be used to keep track of the number of entries
 
-    mov si, 0x9B00
-    mov word [si], 0
-    
-    ; We are going to write the memory map at 0x009C00
+    mov ax, 0
+    mov [mem_map_entries], ax
+ 
+    ; We are going to write the memory map at 0x009B00
     mov es, ax
-    mov di, 0x9C00
+    mov di, 0x9B00
 
     ; First Call:
     ; point ES:DI at the destination buffer for the list. Clear EBX. 
@@ -41,7 +39,7 @@ get_map:
     ; If it was not successful
     jc .error
 
-    inc byte [si] 
+    inc [mem_map_entries] 
 
     ; If ECX = 20 add 4 more bytes for padding (Preserve the 24 Byte Quantity)
     xor ecx, 20
@@ -68,11 +66,12 @@ get_map:
 
     jc .error
 
-    inc byte [ds:si] ; Increment the number of entries
+    inc [mem_map_entries]
 
     ; If bx = 0 then we reached the end of the list
     test bx, bx
     jnz .success
+    
 .safe_exit:
     pop si
     pop di

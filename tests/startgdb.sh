@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-gdb -q build/kernel/arcade.elf -x tests/gdb.boot
+gdb -q build/boot/stage2.elf -x tests/gdb.boot

@@ -69,8 +69,7 @@ stage2:
     push ds
     push si
 
-    mov si, 0x9B00
-    mov ax, word [si]
+    mov ax, [mem_map_entries]
 
     call printint
 
@@ -220,8 +219,7 @@ printhex:
 
 ; Temp Function
 print_map:
-    ; 0x009B00 has the number of entries
-    ; 0x009C00 is where the entries start
+    ; 0x009B00 is where the entries start
     ; Each entry is 24 Bytes
 
     pushf
@@ -234,12 +232,11 @@ print_map:
     xor ax, ax
     mov ds, ax
 
-    mov si, 0x9B00
-    mov cx, word [si]
-    
+    mov cx, [mem_map_entries]
+
     ; We are going to read the memory map at 0x009C00
     mov es, ax
-    mov di, 0x9C00
+    mov di, 0x9B00
 
 .map_loop:
     ; Test if there is data written there

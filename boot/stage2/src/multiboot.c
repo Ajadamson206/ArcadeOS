@@ -152,7 +152,7 @@ void *create_tags(u32 flags) {
 
     // Tag 6
     if(flags & 1<<6) { // Causing Issues
-        //multiboot_structure = tag_memory_map(multiboot_structure);
+        multiboot_structure = tag_memory_map(multiboot_structure);
     }
 
     // Tag 7
@@ -167,7 +167,7 @@ void *create_tags(u32 flags) {
 
     // Tag 9
     if(flags & 1<<9) {
-        // multiboot_structure = tag_kernel_elf(multiboot_structure);
+        multiboot_structure = tag_kernel_elf(multiboot_structure, (void*)0x0000A000);
     }
 
     // Calculate Size by finding the length of memory used

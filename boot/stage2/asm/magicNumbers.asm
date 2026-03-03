@@ -5,9 +5,11 @@ global vbe_info_struct
 global vbe_mode_info_struct
 global vbe_current_mode
 global KERNEL_SECTORS
+global mem_map_entries
 
 section .bss
 
+mem_map_entries resb 2
 
 vbe_current_mode:
     resb 2
@@ -61,4 +63,4 @@ lower_mem_size:
 
 hex_conv db '0123456789ABCDEF'  ; Map for converting from binary -> ASCII Hex
 KERNEL_BYTES equ 10000          ; Size of Kernel in Bytes
-KERNEL_SECTORS equ 37              ; Number of Sectors the Kernel uses (ceil[number of bytes / 512]) 
+KERNEL_SECTORS equ 43              ; Number of Sectors the Kernel uses (ceil[number of bytes / 512])

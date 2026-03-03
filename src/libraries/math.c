@@ -79,7 +79,7 @@ double remainder(double x, double y) {
     __asm__ volatile (
         "fld %2\n"
         "fld %1\n"
-        "fprem"
+        "fprem\n"
         "fstp %0\n"
         : "=m"(x)
         : "m"(x), "m"(y)

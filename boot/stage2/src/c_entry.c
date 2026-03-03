@@ -30,7 +30,6 @@ void stage2_c_main(void) {
 
     vga[4] = 0x2F43; // 'C'
 
-
     u32 tags = parse_mb2_header(kernel_mb2_header);
 
     void *tag_ptr = create_tags(tags);
