@@ -244,7 +244,7 @@ static inline void io_wait(void) {
  * Contains the number of clock ticks that have occurred since the last CPU reset, and is
  * incremented after each clock cycle
  */
-inline u64 rdtsc(void) {
+static inline u64 rdtsc(void) {
     u64 ret;
     __asm__ volatile ( 
         "rdtsc" 

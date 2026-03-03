@@ -60,3 +60,23 @@ void serial_print(serial_port port_num, const char* str) {
         write_serial(port_num, *str++);
     }
 }
+
+void serial_print_hex(serial_port port_num, u32 hex) {
+    char buffer[] = "0x00000000";
+    u8 index = 9;
+
+    while(hex) {
+        char c = (hex % 16);
+        if (c > 9) {
+            c = (c - 10) + 'A';
+        } else {
+            c += '0';
+        }
+    
+        buffer[index] = c;
+        index--;
+        hex /= 16;
+    }
+
+    serial_print(port_num, buffer);
+}

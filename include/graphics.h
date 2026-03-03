@@ -19,6 +19,7 @@ typedef struct {
 #define VIOLET 0x00FF00E6U
 #define BLACK 0x00000000U
 #define WHITE 0x00FFFFFFU
+#define LIGHT_GRAY 0x00B4B4B4
 
 /**
  * Create a u32 value for the passed in RGBA Values
@@ -46,4 +47,9 @@ extern void clear_screen(void);
  * @param color (u32) a 32-bit value with an 8-bit R/G/B/A value
  */
 extern void fill_screen(u32 color);
+
+/**
+ * Replace the screen with the background of the main menu
+ */
+extern void main_menu_background();
 

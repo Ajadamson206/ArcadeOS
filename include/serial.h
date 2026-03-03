@@ -1,8 +1,12 @@
+#pragma once
+
 /**
  * Code for interacting with serial ports
  * 
  * QEMU Uses Serial Ports as a stdio
  */
+
+#include <stdint.h>
 
 /* I/O Ports */
 
@@ -36,5 +40,14 @@ extern int init_serial(serial_port port_num);
  */
 extern void serial_print(serial_port port_num, const char* str);
 
+
+/**
+ * Output an ASCII hexadecimal number to the a serial port
+ * 
+ * @param port_num (serial_port) A serial port (COM1-COM8) that has already
+ * been initialized
+ * @param hex (u32) The hex to be outputted and converted to ASCII
+ */
+extern void serial_print_hex(serial_port port_num, u32 hex);
 
 

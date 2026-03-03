@@ -23,7 +23,19 @@ double cos(double x) {
 
 double cosh(double x);
 double exp(double x);
-double fabs(double x);
+
+double fabs(double x) {
+    __asm__ volatile (
+        "fld %1\n"
+        "fabs\n"
+        "fstp %0\n"
+        : "=m" (x)
+        : "m" (x)
+        : "st"
+    );
+
+    return x;
+}
 double floor(double x);
 double fmod(double x, double y);
 double frexp(double x , int *exponent);
