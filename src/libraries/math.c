@@ -36,7 +36,9 @@ double fabs(double x) {
 
     return x;
 }
-double floor(double x);
+double floor(double x) {
+    return x;
+}
 double fmod(double x, double y);
 double frexp(double x , int *exponent);
 double ldexp(double x, int exponent);
@@ -76,11 +78,58 @@ double sqrt(double x) {
 }
 
 double tan(double x) {
+    __asm__ volatile (
+        "fld %1\n"
+        "fptan\n"
+        "fcomp\n"
+        "fstp %0\n"
+        : "=m" (x)
+        : "m" (x)
+        : "st"
+    );
 
+    return x;
 }
+
 double tanh(double x);
-double hypot(double x, double y);
-int    isnan(double x);
+
+double hypot(double x, double y) {
+    __asm__ volatile (
+        "fld %1\n"
+        "fld %1\n"
+        "fmulp\n"
+        "fld %2\n"
+        "fld %2\n"
+        "fmulp\n"
+        "faddp\n"
+        "fsqrt\n"
+        "fstp %0\n"
+        : "=m" (x)
+        : "m" (x), "m"(y)
+        : "st"
+    );
+
+    return x;
+}
+
+static union {
+    unsigned long long x;
+    double y;
+} conv;
+
+_Static_assert(sizeof(unsigned long long) == sizeof(double), "Math.c union conv: x != y");
+
+int isnan(double x) {
+    // All exponents are 1 / Fraction is anything but 0
+    conv.y = x;
+
+    conv.x &= 0x7FFFFFFFFFFFFFFFULL;
+    
+    // Set the exponents to 1 and the fraction to 0 (Ignore sign)
+    // 0b0111111111110000000000000000000000000000000000000000000000000000
+    return conv.x > 0x7FF0000000000000ULL;
+}
+
 double acosh(double x);
 double asinh(double x);
 double atanh(double x);
@@ -102,7 +151,19 @@ double remainder(double x, double y) {
 }
 
 double rint(double x);
-double scalb(double x, double n);
+double scalb(double x, double n) {
+    __asm__ volatile (
+        "fld %2\n"
+        "fld %1\n"
+        "fscale\n"
+        "fstp %0\n"
+        : "=m"(x)
+        : "m"(x), "m"(n)
+        : "st"
+    );
+
+    return x;
+}
 
 /* Float Functions */
 

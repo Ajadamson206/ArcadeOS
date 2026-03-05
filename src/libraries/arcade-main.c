@@ -3,6 +3,7 @@
 #include <graphics.h>
 #include <serial.h>
 #include <rawio.h>
+#include <keyboard.h>
 
 __attribute__((noreturn))
 void kernel_main(u32 magic, void *mb_info) {
@@ -38,9 +39,12 @@ void kernel_main(u32 magic, void *mb_info) {
     serial_print(COM1, " ");
     serial_print_hex(COM1, (u32)time);
 
+    // Attempt reading the keyboard
 
-
-    //fill_screen(RED);
+    u8 output = kb_wait_until_action();
+    serial_print_hex(COM1, (u32)output);
+    
+    fill_screen(RED);
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }
