@@ -93,6 +93,13 @@
 #define KEY_F11_PRESSED 0x57
 #define KEY_F12_PRESSED 0x58
 
+/* Extended Pressed */
+
+#define KEY_ARROW_UP 0xE048
+#define KEY_ARROW_LEFT 0xE04B
+#define KEY_ARROW_RIGHT 0xE04D
+#define KEY_ARROW_DOWN 0xE050
+
 /* Released Keys */
 
 #define KEY_ESC_RELEASED 0x81
@@ -181,4 +188,16 @@
 #define KEY_F11_RELEASED 0xD7
 #define KEY_F12_RELEASED 0xD8
 
-extern u8 kb_wait_until_action(void);
+/**
+ * Halts all actions until the keyboard is pressed
+ * @returns (u16) Keyboard Scancode
+ */
+extern u16 kb_wait_until_action(void);
+
+/**
+ * Converts a keyboard scancode to its ascii equivalent
+ * @returns 0 if there was no equivalent
+ * @returns (char) ASCII Equivalent (Capitalized if applicable)
+ */
+extern char kb_to_ascii(u16 kb_sc);
+

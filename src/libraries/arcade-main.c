@@ -38,13 +38,15 @@ void kernel_main(u32 magic, void *mb_info) {
     serial_print_hex(COM1, time_upper);
     serial_print(COM1, " ");
     serial_print_hex(COM1, (u32)time);
+    serial_print(COM1, "\n");
+
 
     // Attempt reading the keyboard
-
-    u8 output = kb_wait_until_action();
-    serial_print_hex(COM1, (u32)output);
-    
-    fill_screen(RED);
+    for(;;) {
+        u32 output = kb_wait_until_action();
+        serial_print_hex(COM1, output);
+        serial_print(COM1, "\n");
+    }
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }

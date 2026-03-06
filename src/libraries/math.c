@@ -1,5 +1,12 @@
 #include <math.h>
 
+static union {
+    unsigned long long x;
+    double y;
+} conv;
+
+_Static_assert(sizeof(unsigned long long) == sizeof(double), "Math.c union conv: x != y");
+
 double acos(double x) {
 
 }
@@ -21,8 +28,29 @@ double cos(double x) {
     return x;
 }
 
-double cosh(double x);
-double exp(double x);
+double cosh(double x) {
+    double e_x = exp(x);
+    return (e_x + (1.0 / e_x)) / 2.0;
+}
+
+//e^x = e^(k*ln(2) + r) = 2^k * e^r
+// Modified from: 
+// https://justinwillmert.com/articles/2020/numerically-computing-the-exponential-function-with-polynomial-approximations/
+double exp(double x) {
+    unsigned long long k = (unsigned long long)((x / M_LN2) + (0.5));
+    double r = x - ((double)k * M_LN2);
+
+    // Use 4th degree Polynomial Approximation
+    double ret = (1 + r * (1 + (r / 2.0) * (1 + (r / 3.0) * (1 + (r / 4.0)))));
+
+    // Prevent ULL Overflows
+    while(k >= 64) {
+        k -= 63;
+        ret *= (double)(1ULL<<63);
+    }
+        
+    return (double)(1ULL<<k) * ret;
+}
 
 double fabs(double x) {
     __asm__ volatile (
@@ -40,7 +68,21 @@ double floor(double x) {
     return x;
 }
 double fmod(double x, double y);
-double frexp(double x , int *exponent);
+
+// NEEDS TO BE REVISITED
+double frexp(double x , int *exponent) {
+    // Remove sign bit and Mantisa
+    conv.y = x;
+    conv.x &= 0x7FF0000000000000ULL;
+
+    // Extract Exponent
+    *exponent = conv.x >> 52;
+
+    // Return Mantisa + Sign Bit
+    conv.y = x;
+    return conv.x & 0x800FFFFFFFFFFFFFULL;
+}
+
 double ldexp(double x, int exponent);
 double log(double x);
 double log10(double x);
@@ -61,7 +103,8 @@ double sin(double x) {
 }
 
 double sinh(double x) {
-    
+    double e_x = exp(x);
+    return (e_x - (1.0 / e_x)) / 2.0;
 }
 
 double sqrt(double x) {
@@ -91,7 +134,10 @@ double tan(double x) {
     return x;
 }
 
-double tanh(double x);
+double tanh(double x) {
+    double e_x = exp(2.0 * x);
+    return (e_x - 1) / (e_x + 1); 
+}
 
 double hypot(double x, double y) {
     __asm__ volatile (
@@ -111,13 +157,6 @@ double hypot(double x, double y) {
 
     return x;
 }
-
-static union {
-    unsigned long long x;
-    double y;
-} conv;
-
-_Static_assert(sizeof(unsigned long long) == sizeof(double), "Math.c union conv: x != y");
 
 int isnan(double x) {
     // All exponents are 1 / Fraction is anything but 0
