@@ -4,6 +4,7 @@
 #include <serial.h>
 #include <rawio.h>
 #include <keyboard.h>
+#include <interrupts.h>
 
 __attribute__((noreturn))
 void kernel_main(u32 magic, void *mb_info) {
@@ -17,36 +18,11 @@ void kernel_main(u32 magic, void *mb_info) {
 
     main_menu_background();
 
-    // Print to the serial out
+    idt_init();
 
-    serial_print(COM1, "RDTSC: ");
+    PIC_init();
 
-    u64 time = rdtsc();
-    u32 time_upper = (u32)(time >> 32);
-
-    serial_print_hex(COM1, time_upper);
-    serial_print(COM1, " ");
-    serial_print_hex(COM1, (u32)time);
-    serial_print(COM1, "\n");
-
-
-    io_wait();
-
-    time = rdtsc();
-    time_upper = (u32)(time >> 32);
-
-    serial_print_hex(COM1, time_upper);
-    serial_print(COM1, " ");
-    serial_print_hex(COM1, (u32)time);
-    serial_print(COM1, "\n");
-
-
-    // Attempt reading the keyboard
-    for(;;) {
-        u32 output = kb_wait_until_action();
-        serial_print_hex(COM1, output);
-        serial_print(COM1, "\n");
-    }
+    sti();
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }

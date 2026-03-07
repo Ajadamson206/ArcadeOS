@@ -25,7 +25,7 @@ char kb_to_ascii(u16 kb_sc) {
 u16 kb_wait_until_action(void) {
     while(!(inb(COMMAND_PORT) & 1));
     u16 code = inb(DATA_PORT);
-    while(code == 0xE0) {
+    if(code == 0xE0) {
         code<<=8;
         code |= inb(DATA_PORT);
     }

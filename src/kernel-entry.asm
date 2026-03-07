@@ -11,6 +11,9 @@ _kernel_start:
     ; EAX = multiboot magic
     ; EBX = multiboot info pointer
 
+    ; Ensure that interrupts are off
+    cli
+
     push ebx
     push eax
     call kernel_main

@@ -19,7 +19,7 @@ typedef enum {
     COM6 = 0x4F8,
     COM7 = 0x5E8,
     COM8 = 0x4E8 
-} serial_port ;
+} serial_port;
 
 /**
  * Initialize a serial port for use

@@ -252,3 +252,17 @@ static inline u64 rdtsc(void) {
     );
     return ret;
 }
+
+/**
+ * Disable CPU Interrupts
+ */
+static inline void cli(void) {
+    __asm__ volatile ("cli");
+}
+
+/**
+ * Enable CPU Interrupts
+ */
+static inline void sti(void) {
+    __asm__ volatile ("sti");
+}

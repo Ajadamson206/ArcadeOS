@@ -38,8 +38,8 @@ LIB		:= libraries
 
 # Header Files Location
 INCL 	:= ../include
-# ASM 	:= $(WD)/asm		# Assembly Files
-BD 		:= ../build/kernel# Output Directory
+ASM 	:= asm
+BD 		:= ../build/kernel
 
 # Linker Script
 K_LD := kernel_linker.ld
@@ -51,6 +51,10 @@ KENTRY_O  := $(BD)/kernel-entry.o
 # C Library Sources/Objects
 CLIB   := $(wildcard $(LIB)/*.c)
 CLIB_O := $(patsubst $(LIB)/%.c,$(BD)/%.o,$(CLIB))
+
+# ASM Files
+KASM   := $(wildcard $(ASM)/*.asm)
+KASM_O := $(patsubst $(ASM)/%.asm,$(BD)/%.o,$(KASM))
 
 # Output
 ELF := $(BD)/arcade.elf
@@ -67,11 +71,14 @@ $(KENTRY_O): $(KENTRY) | $(BD)
 
 # Compile libraries/*.c -> BD/*.o
 $(BD)/%.o: $(LIB)/%.c | $(BD)
-	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
+	$(CC) -I$(INCL) $(CFLAGS) -g -c $< -o $@
+
+$(BD)/%.o: $(ASM)/%.asm | $(BD)
+	$(ASBL) -f elf32 $< -o $@
 
 # Link
-$(ELF): $(CLIB_O) $(KENTRY_O) | $(BD)
-	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O)
+$(ELF): $(CLIB_O) $(KENTRY_O) $(KASM_O) | $(BD)
+	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O) $(KASM_O)
 
 clean:
 	rm -rf $(BD)
