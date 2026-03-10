@@ -15,12 +15,12 @@ get_map:
 
     jc .error
 
-    mov [lower_mem_size], ax
+    mov word [lower_mem_size], ax
 
     ; External Variable mem_map_entries to be used to keep track of the number of entries
 
     mov ax, 0
-    mov [mem_map_entries], ax
+    mov word [mem_map_entries], ax
  
     ; We are going to write the memory map at 0x009B00
     mov es, ax
@@ -39,7 +39,7 @@ get_map:
     ; If it was not successful
     jc .error
 
-    inc [mem_map_entries] 
+    inc word [mem_map_entries] 
 
     ; If ECX = 20 add 4 more bytes for padding (Preserve the 24 Byte Quantity)
     xor ecx, 20
@@ -66,7 +66,7 @@ get_map:
 
     jc .error
 
-    inc [mem_map_entries]
+    inc word [mem_map_entries]
 
     ; If bx = 0 then we reached the end of the list
     test bx, bx
