@@ -75,13 +75,13 @@ extern u32 random_color(void);
 extern void main_menu_text(u32 bg_color, u32 text_color, u8 font_size);
 
 /**
- * Returns the font location of the passed character and its length.
+ * Returns the font information of the passed character.
  * The upper 8 bits are the length, the bottom 8 bits are the index in the font variable
  * All fonts are 5 bytes long
  * Returns 0 if the character doesn't have a valid font
  * @param c (char) The character to get the font of
  */
-extern u16 get_font_loc(char c);
+extern u16 get_font_info(char c);
 
 /**
  * Prints text to the screen
@@ -93,4 +93,11 @@ extern u16 get_font_loc(char c);
  */
 extern void draw_text(const char *text, u32 text_color, u8 font_size, u32 x, u32 y);
 
+/**
+ * Prints text to the screen and centers it on the passed in y coordinate
+ * @param text (const char *) String containing the text to be printed
+ * @param text_color (u32) Color of the text
+ * @param font_size (u8) Size of the font if zero, nothing is printed
+ * @param y (u32) Y coordinate of the top row
+ */
 extern void draw_text_centered(const char *text, u32 text_color, u8 font_size, u32 y);

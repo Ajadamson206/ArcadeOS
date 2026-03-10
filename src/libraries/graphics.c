@@ -178,7 +178,7 @@ const u16 alpha_font_info[26] = {(u16)0x0400U,(u16)0x0405U,(u16)0x040AU,(u16)0x0
 // Merged version of num_font_len and num_font_lenr
 const u16 num_font_info[10] = {(u16)0x0400U,(u16)0x0305U,(u16)0x0409U,(u16)0x040EU,(u16)0x0413U,(u16)0x0418U,(u16)0x041DU,(u16)0x0422U,(u16)0x0427U,(u16)0x042CU};
 
-u16 get_font_loc(char c) {
+u16 get_font_info(char c) {
     if(c == ' '){
         return (2<<8) | ((u8)181u); // Space char is 2 blocks long and at position 181
     }
@@ -211,27 +211,50 @@ void draw_text(const char *text, u32 text_color, u8 font_size, u32 x, u32 y){
     for(u32 row = y; row <= row_end; row++) {
         // Row
         volatile u32 *lfb_row = (volatile u32 *)(fb + row * frame_buffer_info->framebuffer_pitch);
+        u32 col = x;
+        
         // Print the text
         const char *text2 = text;
         while(*text2) {
-            
-        }        
-
-
-
-        for(u32 col = x; i <= 547; i += font_size) {
-            // Get the pixel
-            
-            
-            u32 text_index = (i / 5) - 18;
-            if(text[(y / 5) - 11][text_index]) {
-                volatile u32 *start = (volatile u32 *)(row + i);
-                start[0] = text_color;
-                start[1] = text_color;
-                start[2] = text_color;
-                start[3] = text_color;
-                start[4] = text_color;
+            u16 font_info = get_font_info(*text2);
+            if(font_info == 0) {
+                text2++;
+                continue;
             }
+
+            u8 font_loc = (u8)(font_info & 0x00FF);
+            u8 font_len = (u8)(font_info>>8);
+
+            // Check if the character will go out of bounds
+            if(col + (font_len * font_size) >= frame_buffer_info->framebuffer_width) {
+                break;
+            }
+            
+            u32 font_row   = ((row - y) / font_size);
+            u8 *font_ptr = &font[font_row][font_loc];
+
+            // Print the text row
+            for(u8 i = 0; i < font_len; i++) {
+                // 0 Means that we should just stick with the bg color
+                if(font_ptr[i] == 0) {
+                    col += font_size;
+                    continue;
+                }
+
+                // Print the byte and scale it with font size
+                for(u8 i2 = 0; i2 < font_size; i2++) {
+                    lfb_row[col] = text_color;                
+                    col++;
+                }
+            }
+
+            text2++;
+            
+            // Don't add a space if it was the last character
+            if(*text2) {
+                col += font_size;
+            }
+
         }
     }
 }

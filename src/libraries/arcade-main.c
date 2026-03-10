@@ -31,6 +31,8 @@ void kernel_main(u32 magic, void *mb_info) {
     
     main_menu_background_default();
 
+    draw_text("mooo", RED, 5, 20, 20);
+
 error:
     for(;;) { __asm__ volatile ("hlt"); }
 }
