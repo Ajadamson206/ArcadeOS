@@ -71,7 +71,7 @@ $(KENTRY_O): $(KENTRY) | $(BD)
 
 # Compile libraries/*.c -> BD/*.o
 $(BD)/%.o: $(LIB)/%.c | $(BD)
-	$(CC) -I$(INCL) $(CFLAGS) -g -c $< -o $@
+	$(CC) -I$(INCL) $(CFLAGS) -c $< -o $@
 
 $(BD)/%.o: $(ASM)/%.asm | $(BD)
 	$(ASBL) -f elf32 $< -o $@

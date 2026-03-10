@@ -278,6 +278,10 @@ struct __tag_type_9 {
 
 typedef struct __tag_type_9 tag_type_9;
 
+/**
+ * Load Each multiboot2 entry into a buffer for easy access
+ * @param mb_info (void *) Pointer to the beginning of the mb2 struct
+ */
 extern void load_pointers(volatile void *mb_info);
 
 extern tag_type_1 *get_bootcml(void);

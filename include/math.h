@@ -34,7 +34,6 @@
 extern double acos(double x);
 extern double asin(double x);
 extern double atan(double x);
-extern double atan2(double y, double x);
 extern double ceil(double x);
 extern double cos(double x);
 extern double cosh(double x);
@@ -56,6 +55,10 @@ extern double frexp(double x , int *exponent);
  * Returns x multiplied by 2 raised to the power of exponent.
  */
 extern double ldexp(double x, int exponent);
+
+/**
+ * Compute ln(x)
+ */
 extern double log(double x);
 extern double log10(double x);
 
@@ -79,21 +82,11 @@ extern double tanh(double x);
  */
 extern double hypot(double x, double y);
 extern int    isnan(double x);
-extern double acosh(double x);
-extern double asinh(double x);
-extern double atanh(double x);
 
 /**
  * Computes cube root of x
  */
 extern double cbrt(double x);
-
-/**
- * The nextafter() function computes the next representable double-precision floating-point 
- * value following x in the direction of y. Thus, if y is less than x, nextafter() 
- * returns the largest representable floating-point number less than x. 
- */
-extern double nextafter(double x, double y);
 
 /**
  * The remainder() function returns the floating point remainder r = x - ny when y is non-zero. 

@@ -32,6 +32,10 @@ static inline u32 create_color(u8 red, u8 green, u8 blue, u8 alpha) {
     return (alpha << 24) | (red << 16) | (green << 8) | blue;
 }
 
+/**
+ * Extract information from the MB2 tag containing the graphics information
+ * @param tag_8 (tag_type_8 *) Pointer to where tag 8 is on the MB2 struct
+ */
 extern void set_framebuffer(tag_type_8* tag_8);
 
 /**
@@ -49,7 +53,23 @@ extern void clear_screen(void);
 extern void fill_screen(u32 color);
 
 /**
- * Replace the screen with the background of the main menu
+ * Replace the screen with the background of the main menu with custom
+ * colors
+ * @param bg_color (u32) Color of the background
+ * @param text_color (u32) Color of the text + accents
  */
-extern void main_menu_background();
+extern void main_menu_background_custom(u32 bg_color, u32 text_color);
 
+/**
+ * Replace the screen with the default colors for the background. 
+ * Background: Black
+ * Text/Accents: Light Gray
+ */
+#define main_menu_background_default() main_menu_background_custom(BLACK, LIGHT_GRAY)
+
+/**
+ * Returns a random color
+ */
+extern u32 random_color(void);
+
+extern void main_menu_text(u32 bg_color, u32 text_color, u8 font_size);

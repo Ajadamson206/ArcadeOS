@@ -95,10 +95,10 @@
 
 /* Extended Pressed */
 
-#define KEY_ARROW_UP 0xE048
-#define KEY_ARROW_LEFT 0xE04B
-#define KEY_ARROW_RIGHT 0xE04D
-#define KEY_ARROW_DOWN 0xE050
+#define KEY_ARROW_UP_PRESSED 0xE048
+#define KEY_ARROW_LEFT_PRESSED 0xE04B
+#define KEY_ARROW_RIGHT_PRESSED 0xE04D
+#define KEY_ARROW_DOWN_PRESSED 0xE050
 
 /* Released Keys */
 
@@ -188,6 +188,11 @@
 #define KEY_F11_RELEASED 0xD7
 #define KEY_F12_RELEASED 0xD8
 
+#define KEY_ARROW_UP_RELEASED 0xE0C8
+#define KEY_ARROW_LEFT_RELEASED 0xE0CB
+#define KEY_ARROW_RIGHT_RELEASED 0xE0CD
+#define KEY_ARROW_DOWN_RELEASED 0xE0D0
+
 /**
  * Halts all actions until the keyboard is pressed
  * @returns (u16) Keyboard Scancode
@@ -201,3 +206,8 @@ extern u16 kb_wait_until_action(void);
  */
 extern char kb_to_ascii(u16 kb_sc);
 
+/**
+ * Called by the interrupt handler for the keyboard. Used to 
+ * store what keys were pressed / released.
+ */
+extern void kb_on_activation(u8 code);

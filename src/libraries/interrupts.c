@@ -18,8 +18,6 @@ extern void isr14(void);
 extern void isr32(void);
 extern void isr33(void);
 
-extern void isr_keyboard(void);
-
 void idt_set_gate(u8 index, u32 handler, u16 selector, u8 type_attr) {
     idt[index].offset_low  = (u16)(handler & 0xFFFF);
     idt[index].selector    = selector;
@@ -100,11 +98,9 @@ void interrupt_default_handler(u32 interrupt, u32 error) {
 void interrupt_keyboard_handler(void) {
     serial_print(COM1, "Keyboard Activated: ");
 
-    u16 code = inb(DATA_PORT);
-    if(code == 0xE0) {
-        code<<=8;
-        code |= inb(DATA_PORT);
-    }
+    u8 code = inb(DATA_PORT);
+
+    kb_on_activation(code);
 
     serial_print_hex(COM1, (u32)code);
 

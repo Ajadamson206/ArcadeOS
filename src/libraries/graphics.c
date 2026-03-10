@@ -8,6 +8,7 @@
 #include <graphics.h>
 #include <bootinfo.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 static tag_type_8* frame_buffer_info;
 static volatile u32* lfb_start;
@@ -40,7 +41,11 @@ void fill_screen(u32 color) {
     }
 }
 
-void main_menu_background() {
+u32 random_color(void) {
+    return ((u32)rand()) & 0x00FFFFFF;
+}
+
+void main_menu_background_custom(u32 bg_color, u32 text_color) {
     volatile u8* fb = (volatile u8*)lfb_start;
 
     // First 7 Rows are black
@@ -48,7 +53,7 @@ void main_menu_background() {
     for(; y <= 7; y++) {
         volatile u32* row = (volatile u32*)(fb + y * frame_buffer_info->framebuffer_pitch);
         for (u32 x = 0; x < frame_buffer_info->framebuffer_width; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
         }
     }
 
@@ -58,17 +63,17 @@ void main_menu_background() {
         // 1st Seven Black Pixels
         u32 x = 0;   
         for (; x <= 7; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
         }
 
         // Fill in with Gray Until last 7
         u32 end = frame_buffer_info->framebuffer_width - 8;
         for (; x <= end; x++) {
-            row[x] = LIGHT_GRAY;
+            row[x] = text_color;
         }
 
         for (; x < frame_buffer_info->framebuffer_width; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
         }
 
         y++;
@@ -80,11 +85,11 @@ void main_menu_background() {
         volatile u32* row = (volatile u32*)(fb + y * frame_buffer_info->framebuffer_pitch);
         // Set x to be black
         for(u32 x = 0; x < frame_buffer_info->framebuffer_width; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
         }
     
         // Set two gray pixels
-        row[7] = LIGHT_GRAY;
+        row[7] = text_color;
         row[frame_buffer_info->framebuffer_width - 8] = LIGHT_GRAY;
     }
 
@@ -95,17 +100,17 @@ void main_menu_background() {
         // 1st Seven Black Pixels
         u32 x = 0;   
         for (; x <= 7; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
         }
 
         // Fill in with Gray Until last 7
         u32 end = frame_buffer_info->framebuffer_width - 8;
         for (; x <= end; x++) {
-            row[x] = LIGHT_GRAY;
+            row[x] = text_color;
         }
 
         for (; x < frame_buffer_info->framebuffer_width; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
         }
 
         y++;
@@ -115,7 +120,40 @@ void main_menu_background() {
     for(; y <= frame_buffer_info->framebuffer_height; y++) {
         volatile u32* row = (volatile u32*)(fb + y * frame_buffer_info->framebuffer_pitch);
         for (u32 x = 0; x < frame_buffer_info->framebuffer_width; x++) {
-            row[x] = BLACK;
+            row[x] = bg_color;
+        }
+    }
+
+    main_menu_text(bg_color, text_color, 5);
+}
+
+u8 text[5][91] = {
+    {1,0,0,0,1,0,1,1,1,1,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1,0,0,0,1,0,1,1,1,1,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,1,1,1},
+    {1,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,0,1,0,1,1,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,0,1,0,1,0,0,0},
+    {1,0,1,0,1,0,1,1,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,1,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,1,1,1,0,1,1,1,0,0,1,0,0,0,0,1,1,1,1,0,1,0,0,1,0,1,1,1,0,0,1,0,0,1,0,0,1,1,0},
+    {1,1,0,1,1,0,1,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1},
+    {1,0,0,0,1,0,1,1,1,1,0,1,1,1,1,0,0,1,1,0,0,0,1,1,0,0,1,0,0,0,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,0,0,1,0,1,1,1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,0}
+};
+
+void main_menu_text(u32 bg_color, u32 text_color, u8 font_size) {
+    // Top starts at (93, 55) and ends at (547, 55)
+    // Bottom starts at (93, 79) and ends at (547, 79)
+    // Font Size is 5 (Each 1 in text is a 5x5 of color)
+    volatile u8* fb = (volatile u8*)lfb_start;
+    
+    for(u32 y = 55; y <= 79; y++) {
+        // Row
+        volatile u32 *row = (volatile u32 *)(fb + y * frame_buffer_info->framebuffer_pitch);
+        for(u32 i = 93; i <= 547; i += font_size) {
+            u32 text_index = (i / 5) - 18;
+            if(text[(y / 5) - 11][text_index]) {
+                volatile u32 *start = (volatile u32 *)(row + i);
+                start[0] = text_color;
+                start[1] = text_color;
+                start[2] = text_color;
+                start[3] = text_color;
+                start[4] = text_color;
+            }
         }
     }
 }
