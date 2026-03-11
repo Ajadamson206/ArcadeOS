@@ -96,7 +96,7 @@ unsigned long long int strtoull(const char* restrict nptr,
 /* Randomly Generated Values */
 
 static u64 state = 0x5ECF69EFCA182FE3ULL;
-static u64 const multiplier = 0x7443BF8C20D3B2FEULL;
+static u64 const multiplier = 0x5851F42D4C957F2DULL;
 static u64 const increment = 0xB4A84D7E859B2FD5ULL;
 
 int rand(void) {
@@ -106,7 +106,9 @@ int rand(void) {
 	state = x * multiplier + increment;
 	x ^= x >> 18;
 
-	return x >> count | x << (-count & 31);
+    u32 x2 = (u32)x;
+
+	return x2 >> count | x2 << (-count & 31);
 }
 
 void srand(unsigned long long seed) {

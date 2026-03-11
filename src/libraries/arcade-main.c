@@ -6,6 +6,7 @@
 #include <keyboard.h>
 #include <stdlib.h>
 #include <interrupts.h>
+#include <main_menu.h>
 
 __attribute__((noreturn))
 void kernel_main(u32 magic, void *mb_info) {
@@ -28,18 +29,10 @@ void kernel_main(u32 magic, void *mb_info) {
 
     // Seed a random number for a randomized background each time
     srand(rdtsc());
-    
-    main_menu_background_default();
 
-    draw_text_centered("WELCOME TO", LIGHT_GRAY, 5, 55);
-    draw_text_centered("ARCADEOS", random_color(), 5, 90);
+    kb_clear_press_buff();
 
-    u32 width = get_framebuffer_info()->framebuffer_width;
-    u32 length = 450;
-    width = (width - length) / 2;
-
-    draw_rectangle(width, 150, width + length, 425, 1, LIGHT_GRAY);
-
+    main_menu_entry();
 error:
     for(;;) { __asm__ volatile ("hlt"); }
 }

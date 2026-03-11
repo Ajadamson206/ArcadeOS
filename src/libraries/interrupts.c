@@ -96,19 +96,16 @@ void interrupt_default_handler(u32 interrupt, u32 error) {
 }
 
 void interrupt_keyboard_handler(void) {
-    serial_print(COM1, "Keyboard Activated: ");
+    // serial_print(COM1, "Keyboard Activated: ");
 
     u8 code = inb(DATA_PORT);
 
     kb_on_activation(code);
 
-    serial_print_hex(COM1, (u32)code);
+    // serial_print_hex(COM1, (u32)code);
 
     PIC_sendEOI(1);
 }
-
-// Incremented every milisecond
-volatile u64 ticks = 0;
 
 void interrupt_timer_handler(void) {
     ticks++;

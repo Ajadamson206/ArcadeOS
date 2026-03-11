@@ -211,3 +211,29 @@ extern char kb_to_ascii(u16 kb_sc);
  * store what keys were pressed / released.
  */
 extern void kb_on_activation(u8 code);
+
+/**
+ * Clear the pressed keys bitmask.
+ */
+extern void kb_clear_press_buff(void);
+
+/**
+ * Check if the keyboard has been pressed
+ * @returns 1: if the keyboard has been pressed
+ * @returns 0: if the keyboard has not been pressed
+ */
+extern int kb_check_if_pressed(void);
+
+/**
+ * Get the first key to be pressed in the bitmask
+ * @returns 0: if not key has been pressed
+ * @returns (u16): The key that has been pressed (Ex. if 'A' was 
+ * pressed KEY_A_PRESSED will be returned)
+ */
+extern u16 kb_get_next_pressed_key(void);
+
+/**
+ * Print the current key bitmasks to COM1
+ */
+extern void print_key_presses(void);
+

@@ -34,15 +34,22 @@ u16 kb_wait_until_action(void) {
     return code;
 }
 
+// Store if a key has been pressed
+volatile int kb_has_been_pressed = 0;
+
 // Stores the arrow keys
-u8 kb_misc_codes = 0;
+volatile u8 kb_misc_codes = 0;
 
 // Stores regular keyboard presses
-u64 kb_reg_codes[2] = {0};
+volatile u64 kb_reg_codes[2] = {0};
 
 // Used for the extended codes. Keyboard only sends 1 Byte at a time
 // The extended codes are 2 Bytes
-static u8 kb_previous_code = 0;
+static volatile u8 kb_extended_prefix = 0;
+
+static inline void update_has_been_pressed(void){
+    kb_has_been_pressed = !((kb_reg_codes[0] == 0) && (kb_reg_codes[1] == 0) && (kb_misc_codes == 0));
+}
 
 static void kb_extended_activation(u16 extended_code) {
     switch (extended_code)
@@ -85,23 +92,110 @@ void kb_on_activation(u8 code) {
     // The released codes unset the particular bits
     
     // Extended Codes
-    if (kb_previous_code == 0xE0 || kb_previous_code == 0xE1) {
-        u16 ext_code = (u16)(kb_previous_code<<8) | code;
-        kb_extended_activation(code);
+    if (code == 0xE0) {
+        kb_extended_prefix = 1;
+        return;
+    }
+
+    if (kb_extended_prefix) {
+        u16 ext_code = 0xE000U | code;
+        kb_extended_prefix = 0;
+
+        kb_extended_activation(ext_code);
+        update_has_been_pressed();
+
+        return;
     }
 
     // Press Codes are bounded from 0x00 - 0x58
     // Release Codes are bounded from 0x81 - 0xD8
     if (code <= 0x58) { // Press Codes
-        kb_reg_codes[code / 64] |= 1<<(code % 64);
-    } else if (code > 0x81 && code < 0xD8) { // Release Codes
-        u8 updated_code = code - 0x81;
+        kb_reg_codes[code / 64] |= (1ULL<<(code % 64));
+        kb_has_been_pressed = 1;
+    } else if (code >= 0x81 && code <= 0xD8) { // Release Codes
+        u8 updated_code = code - 0x80;
         kb_reg_codes[updated_code / 64] &= 0xFFFFFFFFFFFFFFFFULL ^ 1ULL<<(updated_code % 64);
         
         // I could probably get away with just an XOR but if a release code ever gets sent
         // without a previous press code it could cause some issues
+
+        // Every release check if a key is still being pressed
+        update_has_been_pressed();
     }
 
-    kb_previous_code = code;
 }
 
+void kb_clear_press_buff(void) {
+    kb_reg_codes[0] = 0;
+    kb_reg_codes[1] = 0;
+    kb_misc_codes = 0;
+
+    // Just in case an interrupt happened in the middle of executing this function
+    update_has_been_pressed();
+}
+
+int kb_check_if_pressed(void) {
+    return kb_has_been_pressed; 
+}
+
+static const u16 arrow_key_map[] = {KEY_ARROW_UP_PRESSED, KEY_ARROW_LEFT_PRESSED, KEY_ARROW_RIGHT_PRESSED, KEY_ARROW_DOWN_PRESSED, 0, 0, 0, 0 }; 
+
+u16 kb_get_next_pressed_key(void) {
+    if(!kb_has_been_pressed)
+        return 0x0000;
+
+    if(kb_misc_codes) {
+        u8 index = 0;
+        while(index < 8) {
+            if(kb_misc_codes & (1<<index)) {
+                kb_misc_codes &= 0xFF ^ (1<<index);
+                update_has_been_pressed();
+                return arrow_key_map[index];
+            }
+            index++;
+        }
+
+        return 0;
+    }
+
+    if(kb_reg_codes[0]) {
+        u16 index = 0;
+        while(index < 64) {
+            if(kb_reg_codes[0] & (1ULL<<index)) {
+                kb_reg_codes[0] &= 0xFFFFFFFFFFFFFFFFULL ^ 1ULL<<index;
+                update_has_been_pressed();
+                return index;
+            }
+            index++;
+        }
+
+        return 0;
+    }
+
+        if(kb_reg_codes[1]) {
+            u16 index = 0;
+            while(index < 64) {
+                if(kb_reg_codes[1] & (1ULL<<index)) {
+                    kb_reg_codes[1] &= 0xFFFFFFFFFFFFFFFFULL ^ 1ULL<<index;
+                    update_has_been_pressed();
+                    return index;
+                }
+                index++;
+        }
+
+        return 0;
+    }
+
+    return 0;
+}
+
+void print_key_presses(void) {
+    serial_print(COM1, "Arrow Keys: ");
+    serial_print_hex(COM1, (u32)kb_misc_codes);
+    serial_print(COM1, "\nReg Codes 0: ");
+    serial_print_hex(COM1, (u32)((kb_reg_codes[0])>>32));
+    serial_print_hex(COM1, (u32)((kb_reg_codes[0])));
+    serial_print(COM1, "\nReg Codes 1: ");
+    serial_print_hex(COM1, (u32)((kb_reg_codes[1])>>32));
+    serial_print_hex(COM1, (u32)((kb_reg_codes[1])));
+}

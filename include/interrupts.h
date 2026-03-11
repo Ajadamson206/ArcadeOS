@@ -217,6 +217,9 @@ extern void interrupt_default_handler(u32 interrupt, u32 error);
  */
 extern void interrupt_keyboard_handler(void);
 
+// Incremented every milisecond
+static volatile u64 ticks = 0;
+
 /**
  * IDT Function for handling the timer
  */
