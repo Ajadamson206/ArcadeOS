@@ -48,7 +48,7 @@ DISK := $(BD)/arcadeOS.img
 #
 
 # These should not be file names anyway, but still good to have
-.PHONY: all clean run bootloader kernel
+.PHONY: all clean run bootloader kernel tools
 
 $(BD):
 	mkdir -p $@
@@ -75,3 +75,6 @@ $(DISK):
 	dd if=build/boot/stage1.bin of=$@ bs=512 conv=notrunc status=none;\ 
 	dd if=build/boot/stage2.pad.bin of=$@ bs=512 seek=1 conv=notrunc status=none;\ 
 	dd if=build/kernel/arcade.elf of=$@ bs=512 seek=12 conv=notrunc status=none
+
+tools:
+	$(MAKE) -C tools/merge_array --warn-undefined-variables

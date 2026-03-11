@@ -4,3 +4,6 @@ build/
 # From Elf Test tool (Should usually be removed, but incase not)
 test.o
 headerPrint.o
+
+# Executable from merge tool
+tools/merge_array/merge

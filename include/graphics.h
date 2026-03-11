@@ -72,8 +72,6 @@ extern void main_menu_background_custom(u32 bg_color, u32 text_color);
  */
 extern u32 random_color(void);
 
-extern void main_menu_text(u32 bg_color, u32 text_color, u8 font_size);
-
 /**
  * Returns the font information of the passed character.
  * The upper 8 bits are the length, the bottom 8 bits are the index in the font variable

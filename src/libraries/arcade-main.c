@@ -31,7 +31,7 @@ void kernel_main(u32 magic, void *mb_info) {
     
     main_menu_background_default();
 
-    draw_text("mooo", RED, 5, 20, 20);
+    draw_text_centered("WELCOME TO ARCADEOS", LIGHT_GRAY, 5, 55);
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }
