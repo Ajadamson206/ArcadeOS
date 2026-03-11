@@ -31,7 +31,14 @@ void kernel_main(u32 magic, void *mb_info) {
     
     main_menu_background_default();
 
-    draw_text_centered("WELCOME TO ARCADEOS", LIGHT_GRAY, 5, 55);
+    draw_text_centered("WELCOME TO", LIGHT_GRAY, 5, 55);
+    draw_text_centered("ARCADEOS", random_color(), 5, 90);
+
+    u32 width = get_framebuffer_info()->framebuffer_width;
+    u32 length = 450;
+    width = (width - length) / 2;
+
+    draw_rectangle(width, 150, width + length, 425, 1, LIGHT_GRAY);
 
 error:
     for(;;) { __asm__ volatile ("hlt"); }

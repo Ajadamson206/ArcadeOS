@@ -263,3 +263,83 @@ void draw_text_centered(const char *text, u32 text_color, u8 font_size, u32 y) {
 
     draw_text(text, text_color, font_size, x, y);
 }
+
+void draw_rectangle(u32 x1, u32 y1, u32 x2, u32 y2, u8 depth, u32 color) {
+    if(depth == 0)
+        return;
+    
+    if(y1 >= frame_buffer_info->framebuffer_height)
+        return;
+
+    if(x1 >= frame_buffer_info->framebuffer_width)
+        return;
+
+
+    volatile u8* fb = (volatile u8*)lfb_start;
+
+    // Draw the top line
+    volatile u32* row = (volatile u32*)(fb + y1 * frame_buffer_info->framebuffer_pitch);
+    for(u32 i = x1; i <= x2; i++) {
+        if(i >= frame_buffer_info->framebuffer_width)
+            break;
+
+        row[i] = color;
+    }
+    
+    u32 i = 1;
+    for(; i < depth; i++) {
+        if(y1 + i >= frame_buffer_info->framebuffer_height)
+            break;
+        
+        volatile u32* row2 = (volatile u32*)(fb + (y1 + i) * frame_buffer_info->framebuffer_pitch);
+        memcopy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1 + 1) * sizeof(u32));
+    }
+
+    // Calculate how many normal sides have to be done
+    i32 num_sides = (i32)(y2 - y1 + 1) - 2 * depth;
+    if(num_sides <= 0) {
+        goto bottom; // Skip the middle
+    }
+
+    // Middle Sides
+    for(; i + y1 < y2 - depth; i++) {
+        if(y1 + i >= frame_buffer_info->framebuffer_height)
+            break;
+
+        volatile u32* row2 = (volatile u32*)(fb + (y1 + i) * frame_buffer_info->framebuffer_pitch);
+        // Draw Left Side
+        for(u32 e = 0; e < depth; e++) {
+            if(x1 + e > frame_buffer_info->framebuffer_width)
+                break;
+            row2[x1 + e] = color;            
+        }
+
+        // Draw Right Side
+        for(u32 e = depth; e > 0; e--) {
+            if(x2 - e > frame_buffer_info->framebuffer_width)
+                break;
+            row2[x2 - e] = color;
+        }
+    }
+
+    // Bottom Portion
+bottom:
+    if(i >= frame_buffer_info->framebuffer_height)
+        return;
+
+    row = (volatile u32*)(fb + (y1 + i) * frame_buffer_info->framebuffer_pitch);
+    // Draw First Part
+    for(u32 i = x1; i <= x2; i++) {
+        row[i] = color;
+    }
+
+    // Copy the rest
+    for(; y1 + i <= y2; i++) {
+        if(y1 + i >= frame_buffer_info->framebuffer_height)
+            break;
+
+        volatile u32* row2 = (volatile u32*)(fb + (y1 + i) * frame_buffer_info->framebuffer_pitch);
+        memcopy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1) * sizeof(u32));
+    }
+
+}
