@@ -22,6 +22,7 @@ CFLAGS += -fno-pic
 CFLAGS += -fno-pie
 CFLAGS += -fno-stack-protector
 CFLAGS += -masm=intel
+CFLAGS += -O2
 # CFLAGS += -nostdlib 
 # CFLAGS += -nostartfiles
 

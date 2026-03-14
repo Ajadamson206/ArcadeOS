@@ -25,6 +25,8 @@ pmode_entry:
     mov dword [0xB8000], 0x1F4B1F4F  ; OK
 
     ; Call stage2_c_main (32-bit C code, but still in bootloader process)
+    cli
+    
     call stage2_c_main
 
 .hang:

@@ -63,41 +63,35 @@ u16 mem_merge_intervals(e820_entry *map_start, u16 size) {
     if(size <= 1)
         return size;
     
-    size--;
     u16 i = 0;
-    for(; i < size; i++) {
-        // Look at end of i, compare it to beginning of i + 1
-        u64 left_end = map_start[i].base_address + map_start[i].region_length;
+    while( i < size - 1) {
+        u64 left_start = map_start[i].base_address;
+        u64 left_end = left_start + map_start[i].region_length;
+        
         u64 right_start = map_start[i + 1].base_address;
+        u64 right_end = right_start + map_start[i + 1].region_length;
 
-        // If they overlap: Check if the types are the same
-        // If types are the same as well, merge them
-        if( right_start < left_end && \
-            map_start[i].region_type == map_start[i + 1].region_type) 
+        if (map_start[i].region_type == map_start[i + 1].region_type &&
+            right_start <= left_end)
         {
-            // Merge intervals
-            u64 right_end = map_start[i + 1].base_address + map_start[i + 1].region_length;
-            u64 comb_end = (left_end >= right_end)? left_end : right_end;
+            u64 comb_end = (left_end >= right_end) ? left_end : right_end;
+            map_start[i].region_length = comb_end - left_start;
 
-            map_start[i].region_length = comb_end - map_start[i].base_address;
-
-            // Don't memcopy if it is the last element
-            if(i + 1 == size) {
-                i--;
-                size--;
-                break;
+            // Shift everything after i+1 one slot left
+            for (u16 j = i + 1; j < size - 1; j++) {
+                map_start[j] = map_start[j + 1];
             }
 
-            // Copy remaining elements
-            memcopy(map_start + i + 1, map_start + i + 2, sizeof(*map_start) * (size - i - 1));            
-
-            // Decrement the size and i (Incase multiple entries overlap)
-            i--;
             size--;
+
+            // Do not increment i, because the newly merged interval
+            // may also overlap the next one.
+        } else {
+            i++;
         }
     }
 
-    return i;
+    return size;
 }
 
 /**

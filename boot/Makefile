@@ -21,6 +21,10 @@ CFLAGS += -fno-pic
 CFLAGS += -fno-pie
 CFLAGS += -fno-stack-protector
 CFLAGS += -masm=intel
+# CFLAGS += -mno-sse
+# CFLAGS += -mno-sse2
+# CFLAGS += -mno-mmx
+# CFLAGS += -msoft-float
 # CFLAGS += -nostdlib 
 # CFLAGS += -nostartfiles
 
@@ -73,7 +77,7 @@ $(S2_ASM_O): $(S2_ASM) | $(BD)
 
 # Compile Stage 2 C Files
 $(BD)/%.o: $(S2_CDIR)/%.c | $(BD)
-	$(CC) -I$(INCL) $(CFLAGS) -g -c $< -o $@
+	$(CC) -I$(INCL) $(CFLAGS) -c -O2 $< -o $@
 
 # Link Stage 2 Elf
 $(S2_ELF): $(S2_ASM_O) $(S2_COBJ) | $(BD)
