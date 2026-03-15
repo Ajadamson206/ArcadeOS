@@ -36,10 +36,23 @@ void mm_change_background_color(u32 color) {
     background_color = color;
 }
 
+u32 mm_get_text_color(void) {
+    return default_color;
+}
+
+u32 mm_get_selected_text_color(void) {
+    return selected_color;
+}
+
+u32 mm_get_background_color(void) {
+    return background_color;
+}
+
 void main_menu_entry(void) {
-    // Load Graphics
     background_color = BLACK;
     current_option = 0;
+restart:
+    // Load Graphics
     main_menu_background_custom(background_color, default_color);
 
     draw_text_centered("WELCOME TO", default_color, 5, 55);
@@ -78,6 +91,7 @@ void main_menu_entry(void) {
                     serial_print(COM1, "Selected Game: ");
                     serial_print(COM1, menu_options[current_option]);
                     menu_entry[current_option]();
+                    goto restart;
                     break;
                 default:
                     break;

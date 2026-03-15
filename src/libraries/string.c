@@ -1,10 +1,20 @@
 void *memcopy(void *dst, const void *src, unsigned long len) {
     void *ret = dst;
 
+    unsigned long dwords = len >> 2;
+    unsigned long bytes  = len & 3;
+
     __asm__ volatile (
         "cld\n"
+        "rep movsd"
+        : "+D"(dst), "+S"(src), "+c"(dwords)
+        :
+        : "memory"
+    );
+
+    __asm__ volatile (
         "rep movsb"
-        : "+D"(dst), "+S"(src), "+c"(len)
+        : "+D"(dst), "+S"(src), "+c"(bytes)
         :
         : "memory"
     );
@@ -12,7 +22,46 @@ void *memcopy(void *dst, const void *src, unsigned long len) {
     return ret;
 }
 
-void *memmove ( void * destination, const void * source, unsigned long num );
+void *memmove ( void *dst, const void *src, unsigned long len ) {
+    void *ret = dst;
+
+    if (dst == src || len == 0)
+        return ret;
+
+    if ((unsigned char*)dst < (const unsigned char*)src) {
+        unsigned long dwords = len >> 2;
+        unsigned long bytes  = len & 3;
+
+        __asm__ volatile (
+            "cld\n"
+            "rep movsd"
+            : "+D"(dst), "+S"(src), "+c"(dwords)
+            :
+            : "memory"
+        );
+
+        __asm__ volatile (
+            "rep movsb"
+            : "+D"(dst), "+S"(src), "+c"(bytes)
+            :
+            : "memory"
+        );
+    } else {
+        unsigned char *d = (unsigned char*)dst + len - 1;
+        const unsigned char *s = (const unsigned char*)src + len - 1;
+
+        __asm__ volatile (
+            "std\n"
+            "rep movsb\n"
+            "cld"
+            : "+D"(d), "+S"(s), "+c"(len)
+            :
+            : "memory"
+        );
+    }
+
+    return ret;
+}
 
 char *strcpy ( char * destination, const char * source );
 
@@ -24,6 +73,113 @@ int memcmp ( const void * ptr1, const void * ptr2, unsigned long num );
 
 int strcmp ( const char * str1, const char * str2 );
 
-void *memset ( void * ptr, int value, unsigned long num );
+void *memset( void *ptr, int value, unsigned long num ) {
+    void *ret = ptr;
+
+    unsigned char byte = (unsigned char)value;
+    unsigned long pattern = (unsigned long)byte;
+    pattern |= pattern << 8;
+    pattern |= pattern << 16;
+
+    unsigned long dwords = num >> 2;
+    unsigned long bytes = num & 3;
+
+    __asm__ volatile (
+        "cld\n"
+        "rep stosd"
+        : "+D"(ptr), "+c"(dwords)
+        : "a"(pattern)
+        : "memory"
+    );
+
+    __asm__ volatile (
+        "rep stosb"
+        : "+D"(ptr), "+c"(bytes)
+        : "a"(byte)
+        : "memory"
+    );
+
+    return ret;
+}
+
+void *memset16( void *ptr, int value, unsigned long num_bytes ) {
+    void *ret = ptr;
+
+    unsigned short word = (unsigned short)value;
+    unsigned char byte = (unsigned char)word;
+    unsigned long pattern = (unsigned long)word;
+    pattern |= pattern << 16;
+
+    unsigned long dwords = num_bytes >> 2;
+    unsigned long words = (num_bytes & 2) >> 1;
+    unsigned long bytes = num_bytes & 1;
+
+    // Copy 32 bits
+    __asm__ volatile (
+        "cld\n"
+        "rep stosd"
+        : "+D"(ptr), "+c"(dwords)
+        : "a"(pattern)
+        : "memory"
+    );
+
+    // Copy 16 bits
+    __asm__ volatile (
+        "rep stosw"
+        : "+D"(ptr), "+c"(words)
+        : "a"(word)
+        : "memory"
+    );
+
+    // Copy 8 bits
+    __asm__ volatile (
+        "rep stosb"
+        : "+D"(ptr), "+c"(bytes)
+        : "a"(byte)
+        : "memory"
+    );
+
+    return ret;
+}
+
+void *memset32( void *ptr, int value, unsigned long num_bytes ) {
+    void *ret = ptr;
+
+    unsigned long dwords = num_bytes >> 2;
+    unsigned long words = (num_bytes & 2) >> 1;
+    unsigned long bytes = num_bytes & 1;
+    
+    unsigned long pattern = (unsigned long)value;
+    unsigned short word = (unsigned short)(pattern);
+    unsigned char byte = (unsigned char)((words)? (pattern >> 16) : pattern);
+
+
+    // Copy 32 bits
+    __asm__ volatile (
+        "cld\n"
+        "rep stosd"
+        : "+D"(ptr), "+c"(dwords)
+        : "a"(pattern)
+        : "memory"
+    );
+
+    // Copy 16 bits
+    __asm__ volatile (
+        "rep stosw"
+        : "+D"(ptr), "+c"(words)
+        : "a"(word)
+        : "memory"
+    );
+
+    // Copy 8 bits
+    __asm__ volatile (
+        "rep stosb"
+        : "+D"(ptr), "+c"(bytes)
+        : "a"(byte)
+        : "memory"
+    );
+
+    return ret;
+}
 
 unsigned long strlen ( const char * str );

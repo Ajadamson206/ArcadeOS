@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-const uint8_t num_font_len[] = {4,3,4,4,4,4,4,4,4,4};
-const uint8_t num_font_lenr[] ={0,5,9,14,19,24,29,34,39,44};
+const uint8_t num_font_len[] = {4  ,3  ,  4,  4,  4,  4,  4,  4,  4,4};
+const uint8_t num_font_lenr[] ={134,139,143,148,153,158,163,168,173,178};
 
 void print_hex(uint16_t x) {
     char buffer[] = "(u16)0x0000U";

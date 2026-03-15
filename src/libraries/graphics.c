@@ -127,6 +127,9 @@ void main_menu_background_custom(u32 bg_color, u32 text_color) {
 
 }
 
+u8 temp[] = 
+    {0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,0,0,1,0,1,1,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,0,1,0,1,1,1,1,0,0};
+
 const u8 font[5][184] = {
     {0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,0,0,1,0,1,1,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0,0,1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,0},
     {1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,1,1,0,1,1,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,1,0,1,1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,0},
@@ -141,11 +144,11 @@ const u8 font[5][184] = {
 // Merged version of alpha_font_len and alpha_font_lenr
 const u16 alpha_font_info[26] = {(u16)0x0400U,(u16)0x0405U,(u16)0x040AU,(u16)0x040FU,(u16)0x0414U,(u16)0x0419U,(u16)0x041EU,(u16)0x0423U,(u16)0x0328U,(u16)0x042CU,(u16)0x0431U,(u16)0x0436U,(u16)0x053BU,(u16)0x0441U,(u16)0x0446U,(u16)0x044BU,(u16)0x0450U,(u16)0x0455U,(u16)0x045AU,(u16)0x055FU,(u16)0x0465U,(u16)0x056AU,(u16)0x0570U,(u16)0x0476U,(u16)0x057BU,(u16)0x0481U};
 
-// const u8 num_font_len[] = {4,3,4,4,4,4,4,4,4,4};
-// const u8 num_font_lenr[] ={0,5,9,14,19,24,29,34,39,44};
+// const u8 num_font_len[] = {4  ,3  ,  4,  4,  4,  4,  4,  4,  4,4};
+// const u8 num_font_lenr[] ={134,139,143,148,153,158,163,168,173,178};
 
 // Merged version of num_font_len and num_font_lenr
-const u16 num_font_info[10] = {(u16)0x0400U,(u16)0x0305U,(u16)0x0409U,(u16)0x040EU,(u16)0x0413U,(u16)0x0418U,(u16)0x041DU,(u16)0x0422U,(u16)0x0427U,(u16)0x042CU};
+const u16 num_font_info[10] = {(u16)0x0486U,(u16)0x038BU,(u16)0x048FU,(u16)0x0494U,(u16)0x0499U,(u16)0x049EU,(u16)0x04A3U,(u16)0x04A8U,(u16)0x04ADU,(u16)0x04B2U};
 
 u16 get_font_info(char c) {
     if(c == ' '){
@@ -342,4 +345,26 @@ bottom:
         memcopy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1) * sizeof(u32));
     }
 
+}
+
+void draw_rectangle_filled(u32 x1, u32 y1, u32 x2, u32 y2, u32 color) {
+    if(y1 >= frame_buffer_info->framebuffer_height)
+        return;
+
+    if(x1 >= frame_buffer_info->framebuffer_width)
+        return;
+
+    if(x2 >= frame_buffer_info->framebuffer_width)
+        x2 = frame_buffer_info->framebuffer_width - 1;
+    
+    if(y2 >= frame_buffer_info->framebuffer_height)
+        y2 = frame_buffer_info->framebuffer_height - 1;
+
+    volatile u8* fb = (volatile u8*)lfb_start;
+
+    // Draw the lines
+    for(u32 i = y1; i <= y2; i++) {
+        volatile u32* row = (volatile u32*)(fb + (x1 * 4) + i * frame_buffer_info->framebuffer_pitch);
+        memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
+    }
 }

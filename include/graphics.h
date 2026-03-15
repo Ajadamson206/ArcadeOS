@@ -111,4 +111,12 @@ extern void draw_text_centered(const char *text, u32 text_color, u8 font_size, u
  */
 extern void draw_rectangle(u32 x1, u32 y1, u32 x2, u32 y2, u8 depth, u32 color);
 
-extern void draw_rectangle2(u32 x1, u32 y1, u32 x2, u32 y2, u8 depth, u32 color);
+/**
+ * Draw a filled rectangle to the screen
+ * @param x1 (u32) X-coordinate of the top left corner 
+ * @param y1 (u32) Y-coordinate of the top left corner 
+ * @param x2 (u32) X-coordinate of the bottom right corner 
+ * @param y2 (u32) Y-coordinate of the bottom right corner
+ * @param color (u32) Color of the rectangle 
+ */
+extern void draw_rectangle_filled(u32 x1, u32 y1, u32 x2, u32 y2, u32 color);
