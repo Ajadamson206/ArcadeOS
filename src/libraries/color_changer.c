@@ -42,7 +42,7 @@ cc_restart:
                 case KEY_ARROW_UP_PRESSED:
                     cc_current_option--;
                     if(cc_current_option < 0) {
-                        cc_current_option == (i8)(cc_num_entries - 1);
+                        cc_current_option = (i8)(cc_num_entries - 1);
                     }
 
                     break;
@@ -158,6 +158,13 @@ void color_changer_change_color(void) {
 
             switch (pressed_key)
             {
+                case KEY_R_PRESSED:
+                    u32 rand_color = random_color(); 
+                    rgb[0] = (u8)((rand_color & 0x00FFFFFF) >> 16); // R
+                    rgb[1] = (u8)((rand_color & 0x0000FFFF) >> 8); // G
+                    rgb[2] = (u8)(rand_color & 0x000000FF); // B
+                    break;
+
                 case KEY_ARROW_RIGHT_PRESSED:
                     cc_changer_option = (cc_changer_option + 1) % 3;
                     break;

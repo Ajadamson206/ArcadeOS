@@ -91,7 +91,7 @@ void main_menu_background_custom(u32 bg_color, u32 text_color) {
     
         // Set two gray pixels
         row[7] = text_color;
-        row[frame_buffer_info->framebuffer_width - 8] = LIGHT_GRAY;
+        row[frame_buffer_info->framebuffer_width - 8] = text_color;
     }
 
 

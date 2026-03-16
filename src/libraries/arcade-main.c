@@ -32,6 +32,8 @@ void kernel_main(u32 magic, void *mb_info) {
 
     kb_clear_press_buff();
 
+    atexit(NULL);
+
     main_menu_entry();
 error:
     for(;;) { __asm__ volatile ("hlt"); }

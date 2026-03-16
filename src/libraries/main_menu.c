@@ -4,6 +4,7 @@
 #include <serial.h>
 #include <misc.h>
 #include <color_changer.h>
+#include <stdlib.h>
 
 static u32 default_color = LIGHT_GRAY;
 static u32 selected_color = YELLOW;
@@ -93,6 +94,10 @@ restart:
                     menu_entry[current_option]();
                     goto restart;
                     break;
+
+                case KEY_ESC_PRESSED:
+                    abort();
+                    
                 default:
                     break;
             }
