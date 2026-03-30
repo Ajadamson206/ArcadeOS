@@ -83,7 +83,8 @@ static void maze_create(u8 x, u8 y) {
     // Randomly pick an element and recurse the function with it
     while(num) {
         // Remove element from the array
-        point_t next = remove_element(array, (u8)(rand() % num), 4);
+        u8 index = (u8)((u8)(rand()) % num);
+        point_t next = remove_element(array, index, 4);
         u8 next_x = point_get_x(next);        
         u8 next_y = point_get_y(next);        
 
