@@ -150,6 +150,8 @@ void color_changer_change_color(void) {
     // Sections for RGB
     color_changer_draw_modifier_dynam_assets();
 
+    cc_changer_option = 0;
+
     // Control logic
     for(;;) {
         if (kb_check_if_pressed()) {

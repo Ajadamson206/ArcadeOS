@@ -405,20 +405,10 @@ restart:
 
                 case KEY_ARROW_DOWN_PRESSED:
                     player_move_down();
-                    if(player_x == win_x && player_y == win_y)
-                        if(maze_game_win_screen())
-                            return;
-                        else
-                            goto restart;
                     break;
 
                 case KEY_ARROW_RIGHT_PRESSED:
                     player_move_right();
-                    if(player_x == win_x && player_y == win_y)
-                        if(maze_game_win_screen())
-                            return;
-                        else
-                            goto restart;
                     break;
 
                 case KEY_ARROW_LEFT_PRESSED:
@@ -434,6 +424,12 @@ restart:
                 default:
                     break;
             }
+
+            if(player_x == win_x && player_y == win_y)
+                if(maze_game_win_screen())
+                    return;
+                else
+                    goto restart;
         } else {
             // Slow down the loop a bit when nothing is happening
             __asm__ volatile ("hlt");
