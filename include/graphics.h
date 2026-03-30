@@ -4,11 +4,11 @@
 #include <bootinfo.h>
 
 typedef struct {
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} pixel;
+    u16 framebuffer_pitch; // Number of bytes per horizontal line
+    u16 framebuffer_width; // Width in pixels
+    u16 framebuffer_height; // Height in pixels
+    u8 framebuffer_bpp; // Bits per pixel
+} screen_info;
 
 #define RED 0x00FF0000U
 #define ORANGE 0x00DB6B0FU
@@ -37,6 +37,16 @@ static inline u32 create_color(u8 red, u8 green, u8 blue, u8 alpha) {
  * @param tag_8 (tag_type_8 *) Pointer to where tag 8 is on the MB2 struct
  */
 extern void set_framebuffer(tag_type_8* tag_8);
+
+/**
+ * Grab a copy of the screen info
+ */
+extern screen_info get_screen_info(void);
+
+/**
+ * Get a reference to the Linear Frame Buffer
+ */
+extern volatile u32 *get_lfb(void);
 
 /**
  * Clears all elements on the screen by setting everything to black.
