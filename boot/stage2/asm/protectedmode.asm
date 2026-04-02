@@ -1,6 +1,8 @@
 [BITS 32]
 section .text
 global pmode_entry
+global pmode_exit
+
 extern stage2_c_main
 
 pmode_entry:
@@ -32,3 +34,7 @@ pmode_entry:
 .hang:
     hlt
     jmp .hang
+
+pmode_exit:
+    cli
+

@@ -5,7 +5,7 @@
 #include <misc.h>
 #include <color_changer.h>
 #include <stdlib.h>
-#include <maze_game.h>
+#include <maze_game_menu.h>
 
 static u32 default_color = LIGHT_GRAY;
 static u32 selected_color = YELLOW;
@@ -17,7 +17,7 @@ static const i8 num_options = 3;
 static const u32 menu_start = 180;
 
 static const char* menu_options[3] = {"maze game", "color changer", "doom"};
-static void (*menu_entry[])(void) = {maze_game_entry, color_changer_entry, color_changer_entry};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry};
 
 void main_menu_draw_options(void) {
     // Draw all text
@@ -54,7 +54,7 @@ void main_menu_entry(void) {
     background_color = BLACK;
     current_option = 0;
 
-    menu_entry[0] = maze_game_entry;
+    menu_entry[0] = maze_game_menu;
     menu_entry[1] = color_changer_entry;
     menu_entry[2] = color_changer_entry;
 

@@ -7,17 +7,22 @@
 #include <keyboard.h>
 #include <serial.h>
 
-u32 mg_background_color = 0;
-u32 mg_assets_color = 0;
-u32 mg_player_color = 0;
+static u32 mg_background_color = 0;
+static u32 mg_assets_color = 0;
+static u32 mg_player_color = 0;
 
 typedef u16 point_t;
 
-#define MAZE_X 81
-#define MAZE_Y 81
+#define MAZE_X_MAX 81
+#define MAZE_Y_MAX 81
 
-u8 player_x = 0;
-u8 player_y = 0;
+static u8 MAZE_X = 81;
+static u8 MAZE_Y = 81;
+
+static u8 player_x = 0;
+static u8 player_y = 0;
+
+static u8 maze_scale = 0;
 
 static screen_info screen_data;
 static volatile u32 *lfb;
@@ -47,7 +52,7 @@ point_t remove_element(point_t *array, u8 index, u8 num) {
     return ret;
 }
 
-static u8 maze[MAZE_Y][MAZE_X];
+static u8 maze[MAZE_Y_MAX][MAZE_X_MAX];
 
 static void maze_create(u8 x, u8 y) {
     if(maze[y][x] == 1)
@@ -240,8 +245,6 @@ void maze_color_pos(u8 x, u8 y, u8 scale, u32 color) {
     }
 }
 
-#define maze_draw_player(SCALE) maze_color_pos(player_x, player_y, SCALE, mg_player_color)
-
 void player_move_up(void) {
     if(player_y == 0)
         return;
@@ -249,13 +252,13 @@ void player_move_up(void) {
     u8 new_y = player_y - 1;
     if(maze[new_y][player_x] == 1) {
         // Reset current player tile
-        maze_color_pos(player_x, player_y, 4, mg_assets_color);
+        maze_color_pos(player_x, player_y, maze_scale, mg_assets_color);
 
         // Update Player
         player_y = new_y;
 
         // Redraw Player
-        maze_draw_player(4);
+        maze_color_pos(player_x, player_y, maze_scale, mg_player_color);
     }
 }
 
@@ -266,13 +269,13 @@ void player_move_down(void) {
     u8 new_y = player_y + 1;
     if(maze[new_y][player_x] == 1) {
         // Reset current player tile
-        maze_color_pos(player_x, player_y, 4, mg_assets_color);
+        maze_color_pos(player_x, player_y, maze_scale, mg_assets_color);
 
         // Update Player
         player_y = new_y;
 
         // Redraw Player
-        maze_draw_player(4);
+        maze_color_pos(player_x, player_y, maze_scale, mg_player_color);
     }
 }
 
@@ -283,13 +286,13 @@ void player_move_left(void) {
     u8 new_x = player_x - 1;
     if(maze[player_y][new_x] == 1) {
         // Reset current player tile
-        maze_color_pos(player_x, player_y, 4, mg_assets_color);
+        maze_color_pos(player_x, player_y, maze_scale, mg_assets_color);
 
         // Update Player
         player_x = new_x;
 
         // Redraw Player
-        maze_draw_player(4);
+        maze_color_pos(player_x, player_y, maze_scale, mg_player_color);
     }
 }
 
@@ -300,13 +303,13 @@ void player_move_right(void) {
     u8 new_x = player_x + 1;
     if(maze[player_y][new_x] == 1) {
         // Reset current player tile
-        maze_color_pos(player_x, player_y, 4, mg_assets_color);
+        maze_color_pos(player_x, player_y, maze_scale, mg_assets_color);
 
         // Update Player
         player_x = new_x;
 
         // Redraw Player
-        maze_draw_player(4);
+        maze_color_pos(player_x, player_y, maze_scale, mg_player_color);
     }
 }
 
@@ -361,7 +364,11 @@ int maze_game_win_screen(void) {
     }
 }
 
-void maze_game_entry(void) {
+point_t calculate_end_loc(u8 maze_size) {
+    return point_create(maze_size - 1, maze_size - 1);   
+}
+
+void maze_game_entry(u8 maze_size, u8 scale) {
     // Initialize Game
     mg_background_color = mm_get_background_color();
     mg_assets_color = mm_get_text_color();
@@ -382,16 +389,22 @@ restart:
     srand(rdtsc());
 
     // Start Point is (0,0)
+    MAZE_X = maze_size;
+    MAZE_Y = maze_size;
     player_x = 0;
     player_y = 0;
-    u8 win_x = 0;
-    u8 win_y = 2;
+
+    maze_scale = scale;
+
+    point_t win = calculate_end_loc(maze_size);
+    u8 win_x = point_get_x(win);
+    u8 win_y = point_get_y(win);
     maze_create(player_x, player_y);
 
     // Render the maze (Each maze node is a 4x4)
-    maze_render(4);
-    maze_draw_player(4);
-    maze_color_pos(win_x, win_y, 4, mg_player_color);
+    maze_render(scale);
+    maze_color_pos(player_x, player_y, maze_scale, mg_player_color);
+    maze_color_pos(win_x, win_y, maze_scale, mg_player_color);
 
     while(1) {
         if(kb_check_if_pressed()) {
