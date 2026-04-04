@@ -77,7 +77,7 @@ $(S2_ASM_O): $(S2_ASM) | $(BD)
 
 # Compile Stage 2 C Files
 $(BD)/%.o: $(S2_CDIR)/%.c | $(BD)
-	$(CC) -I$(INCL) $(CFLAGS) -c -O2 $< -o $@
+	$(CC) -I$(INCL) $(CFLAGS) -c -g $< -o $@
 
 # Link Stage 2 Elf
 $(S2_ELF): $(S2_ASM_O) $(S2_COBJ) | $(BD)

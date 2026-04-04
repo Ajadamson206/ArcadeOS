@@ -218,12 +218,12 @@ extern const u32 KERNEL_SECTORS;
  */
 static inline void *move_kernel(void) {
     // Find where the sections start
-    volatile Elf32_Ehdr *e_hdr = (volatile Elf32_Ehdr *)0x0000A000u;
+    volatile Elf32_Ehdr *e_hdr = (volatile Elf32_Ehdr *)0x00300000u;
     volatile Elf32_Shdr *s_hdr = (volatile Elf32_Shdr *)(((volatile u8*)e_hdr) + e_hdr->e_shoff + e_hdr->e_shentsize);
 
     u32 ret = e_hdr->e_entry;
 
-    volatile u32 *src = (volatile u32 *)(s_hdr->sh_offset + 0x0000A000u);
+    volatile u32 *src = (volatile u32 *)(s_hdr->sh_offset + 0x00300000u);
     volatile u32 *dst = (volatile void*)0x00200000u;
 
     u32 count = (e_hdr->e_shoff - s_hdr->sh_offset) / 4;
@@ -240,7 +240,7 @@ static inline void *move_kernel(void) {
  * 0: Did not find the ELF Header
  */
 static inline int check_kernel_stage(void) {
-    return *(volatile u32 *)0x0000A000u == 0x464C457Fu; // 7F E L F
+    return *(volatile u32 *)0x00300000u == 0x464C457Fu; // 7F E L F
 }
 
 /**
@@ -250,4 +250,17 @@ static inline int check_kernel_stage(void) {
  */
 static inline int check_kernel(void) {
     return *(volatile u32 *)0x00200000u == 0x464C457Fu; // 7F E L F
+}
+
+/**
+ * Switches to 16-bit mode to load the kernel in 60 sector chunks
+ * to 0x00300000
+ */
+static inline void load_kernel() {
+    __asm__ volatile(
+        "call c_code_exit"
+        :
+        :
+        : "memory"
+    );
 }

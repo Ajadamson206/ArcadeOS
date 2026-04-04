@@ -8,7 +8,7 @@
 ; 7. enter protected mode
 ; 8. jump to kernel entry, pass boot info ptr
 
-[BITS 16]       ; CPU Executes the following Code in 16-Bit Modee
+[BITS 16]       ; CPU Executes the following Code in 16-Bit Mode
 
 global stage2
 
@@ -24,7 +24,6 @@ jmp stage2      ; Include basically copy and pastes the files
 %include "stage2/asm/loadkernel.asm"
 %include "stage2/asm/vbepoll.asm"
 %include "stage2/asm/loadgdt.asm"
-
 
 ; We need to treat this as a completely new file than Stage 1
 ; Only assumption we can make is LBA is compatible
@@ -43,6 +42,7 @@ stage2:
 
     ; Store the BootDrive
     mov [boot_drive], dl ; Store the bootdrive ID into memory (BIOS Stores it into dl)
+    xor ax, ax
     mov al, dl
     call printint    
 
@@ -50,7 +50,7 @@ stage2:
     call printstring
 
     ; Get VBE Info
-    call enable_graphics
+    ;call enable_graphics
 
     ; Move the string to si and print it to screen
     mov si, stage2_string
@@ -94,8 +94,7 @@ stage2:
     lgdt [cs:gdt_descriptor]
 
     ; Enable Protected Mode
-    call protected_mode_enable
-    jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
+    jmp protected_mode_enable
 
 hang:
     hlt
@@ -350,4 +349,5 @@ high_memory db 'Higher Memory Size: ',0
 hex_string db '0x',0
 map_string db 'Memory Map: Base Address | Length | Type | ACPI 3.0 Attributes',13,10,0
 
+%include "stage2/asm/movekernel.asm"
 %include "stage2/asm/protectedmode.asm"

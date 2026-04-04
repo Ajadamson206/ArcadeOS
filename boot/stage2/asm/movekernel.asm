@@ -8,7 +8,11 @@ secs_to_move:
 ; Enter Protected Mode then jump to 32-bit
 ; Assume that ax has the number of sectors to move
 movekernel_init:
+    cli
+
     mov word [secs_to_move], ax
+
+    lgdt [gdt_descriptor]
 
     ; Enter Protected Mode then jump to movekernel
     mov eax, cr0
@@ -21,16 +25,11 @@ movekernel_init:
     or  eax,  (1 << 1)     ; set MP
     mov cr0, eax
 
-    mov eax, cr4
-    or  eax, (1 << 9)      ; OSFXSR
-    or  eax, (1 << 10)     ; OSXMMEXCPT (optional but recommended)
-    mov cr4, eax    
-
     jmp dword 0x08:movekernel 
 
 [BITS 32]
 kernel_address:
-    dd 0x00200000
+    dd 0x00300000 ; Move it to here so we can then copy what we need to 0x00200000
 
 ; Assumes that the kernel was first loaded at 0xA000
 movekernel:
@@ -52,7 +51,7 @@ movekernel:
     mov esi, 0x0000A000
     mov edi, dword [kernel_address]
     xor eax, eax
-    mov ax, secs_to_move
+    mov ax, [secs_to_move]
     mov ecx, BYTES_PER_SECTOR
     mul ecx
     mov ecx, eax
@@ -62,15 +61,37 @@ movekernel:
     ; EDI is incremented each iteration
     mov dword [kernel_address], edi
 
-    ; Exit Protected Mode and Go Back
-
-    ; Disable cr0
-    mov eax, cr0
-    and eax, 0x7FFFFFFE
-    mov cr0, eax
-
-    jmp 0x0000:load_sector
+    jmp 0x18:preload16_exit
 
 .hang:
     hlt
     jmp .hang
+
+[BITS 16]
+preload16_exit:
+    mov ax, 0x20
+    mov ds, ax
+    mov es, ax
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax
+
+    mov eax, cr0
+    and eax, 0xFFFFFFFE
+    mov cr0, eax
+
+    jmp 0x0000:preload_real
+
+preload_real:
+    cli
+
+    ; Reset Segments
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov fs, ax
+    mov gs, ax
+    mov sp, 0x7C00
+
+    jmp load_sector

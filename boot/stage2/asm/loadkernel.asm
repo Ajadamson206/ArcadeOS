@@ -1,7 +1,7 @@
 [BITS 16]
 
 kernel_lba:
-    dd 12
+    dd 13
 
 BOUNCE_SEG equ 0x0A00
 BOUNCE_OFF equ 0x0000
@@ -18,6 +18,9 @@ remaining_sectors:
 loadkernel:
     clc
     cld
+
+    mov si, kernel_start
+    call printstring
 
     push cs
     pop ds
@@ -42,9 +45,8 @@ load_sector:
     test ax, ax ; Check if zero
     jz .load_remainder
 
-    mov ax, word [remaining_sectors]
     mov si, dap
-    mov word [dap + 2], ax   ; Load the max sectors
+    mov word [dap + 2], MAX_LOAD_AMOUNT   ; Load the max sectors
     
     ; Where to write
     mov word [dap+4], BOUNCE_OFF        ; offset
@@ -81,7 +83,7 @@ load_sector:
     jz .done
 
     mov si, dap
-    mov word [dap + 2], MAX_LOAD_AMOUNT   ; Load 60 sectors at a time
+    mov word [dap + 2], ax              ; Load remaining sectors
     
     ; Where to write
     mov word [dap+4], BOUNCE_OFF        ; offset
@@ -105,7 +107,21 @@ load_sector:
     jmp movekernel_init
 
 .done:
-    call protected_mode_enable
+    cli
+
+    lgdt [gdt_descriptor]
+
+    ; Enter Protected Mode then jump to movekernel
+    mov eax, cr0
+    or eax, 1        ; Set the protection enable bit
+    mov cr0, eax
+
+    ; Prevent Crashes with XMM Instructions
+    mov eax, cr0
+    and eax, ~(1 << 2)     ; clear EM
+    or  eax,  (1 << 1)     ; set MP
+    mov cr0, eax
+
     jmp dword 0x08:back_to_c
     
 
@@ -134,3 +150,4 @@ dap:
 kernel_error db 'Error Reading the Kernel into Memory',13,10,0
 kernel_elf db 'Successfully loaded ELF Kernel',13,10,0
 kernel_elf_fail db 'Unable to find ELF Header',13,10,0
+kernel_start db 'Loading the Kernel',13,10,0
