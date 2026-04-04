@@ -1,7 +1,7 @@
 [BITS 16]
 
 kernel_lba:
-    dd 13
+    dd 12
 
 BOUNCE_SEG equ 0x0A00
 BOUNCE_OFF equ 0x0000

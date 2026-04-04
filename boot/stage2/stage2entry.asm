@@ -50,7 +50,7 @@ stage2:
     call printstring
 
     ; Get VBE Info
-    ;call enable_graphics
+    call enable_graphics
 
     ; Move the string to si and print it to screen
     mov si, stage2_string
