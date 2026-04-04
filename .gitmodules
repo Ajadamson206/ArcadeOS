@@ -1,0 +1,3 @@
+[submodule "src/DOOM"]
+	path = src/DOOM
+	url = git@github.com:Ajadamson206/ArcadeOS-DOOM.git
