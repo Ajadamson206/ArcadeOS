@@ -1,9 +1,18 @@
 [BITS 16]
 
-KERNEL_LBA equ 12
+kernel_lba:
+    dd 12
 
 BOUNCE_SEG equ 0x0A00
 BOUNCE_OFF equ 0x0000
+
+MAX_LOAD_AMOUNT equ 60
+
+times_to_load_full:
+    dw 0
+
+remaining_sectors:
+    dw 0
 
 ; We can assume that LBA is already supported and we are in Unreal Mode
 loadkernel:
@@ -13,21 +22,37 @@ loadkernel:
     push cs
     pop ds
 
+    ; Determine the number of times needed to load the full 60 sectors
+    ; times = (KERNEL_SECTORS) / 60
+    xor edx, edx
+
+    mov eax, KERNEL_SECTORS
+    mov ecx, MAX_LOAD_AMOUNT
+    div ecx ; Unsigned divide EDX:EAX by ECX
+
+    mov word [times_to_load_full], ax ; Quotient
+    mov word [remaining_sectors], dx ; Remainder
+
 ; Load the Kernel into memory
 ; We read a sector, store it at 0x0000A000 then copy it to
 ; 0x00100000
 ; The Bootloader's C Code will parse the required information
-.load_sector:
+load_sector:
+    mov ax, word [times_to_load_full]
+    test ax, ax ; Check if zero
+    jz .load_remainder
 
+    mov ax, word [remaining_sectors]
     mov si, dap
-    mov word [dap + 2], KERNEL_SECTORS   ; Load one sector at a time
+    mov word [dap + 2], ax   ; Load the max sectors
     
     ; Where to write
     mov word [dap+4], BOUNCE_OFF        ; offset
     mov word [dap+6], BOUNCE_SEG        ; segment
     
     ; This portion is which disk sector the current part of the kernel is
-    mov dword [dap + 8], KERNEL_LBA     ; LBA low
+    mov eax, dword [kernel_lba]
+    mov dword [dap + 8], eax            ; LBA low
     mov dword [dap + 12], 0             ; LBA high
 
     xor ax, ax
@@ -35,31 +60,54 @@ loadkernel:
     mov ah, 0x42                         ; INT 13h 42h extensions: Extended Read
     int 0x13
     jc .disk_fail
+
+    ; Update the LBA
+    mov eax, dword [kernel_lba]
+    add eax, MAX_LOAD_AMOUNT
+    mov dword [kernel_lba], eax
+
+    ; Decrement the times to load full
+    mov ax, word [times_to_load_full]
+    dec ax
+    mov word [times_to_load_full], ax
+
+    ; Move the kernel to the correct spot
+    mov ax, MAX_LOAD_AMOUNT
+    jmp movekernel_init
+
+.load_remainder:
+    mov ax, word [remaining_sectors]
+    test ax, ax
+    jz .done
+
+    mov si, dap
+    mov word [dap + 2], MAX_LOAD_AMOUNT   ; Load 60 sectors at a time
     
-.check_elf:
-    push ds
+    ; Where to write
+    mov word [dap+4], BOUNCE_OFF        ; offset
+    mov word [dap+6], BOUNCE_SEG        ; segment
     
-    mov ax, BOUNCE_SEG
-    mov ds, ax
-    mov bx, BOUNCE_OFF
-    mov eax, [bx]
+    ; This portion is which disk sector the current part of the kernel is
+    mov eax, dword [kernel_lba]
+    mov dword [dap + 8], eax            ; LBA low
+    mov dword [dap + 12], 0             ; LBA high
 
-    pop ds
+    xor ax, ax
+    mov dl, [boot_drive]
+    mov ah, 0x42                         ; INT 13h 42h extensions: Extended Read
+    int 0x13
+    jc .disk_fail
 
-    ; Compare against ELF magic
-    cmp eax, 0x464C457F      ; 0x7F 'E' 'L' 'F' (little-endian)
-    jne .not_elf
-
-    mov si, kernel_elf
-    call printstring
-    jmp .done
-
-.not_elf:
-    mov si, kernel_elf_fail
-    call printstring
+    ; Set Remaining Sectors to 0
+    mov ax, [remaining_sectors]
+    mov cx, 0
+    mov word [remaining_sectors], cx
+    jmp movekernel_init
 
 .done:
-    ret
+    call protected_mode_enable
+    jmp dword 0x08:back_to_c
+    
 
 .disk_fail:
     mov si, kernel_error

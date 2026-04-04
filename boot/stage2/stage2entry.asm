@@ -85,7 +85,7 @@ stage2:
     call print_map
 
     ; Load the kernel
-    call loadkernel
+    ;call loadkernel
 
     ; Build boot-info struct
     call buildbootinfo
@@ -93,27 +93,8 @@ stage2:
    ; Load Global Descriptor Table, set cr0.pe, far jump into 32-bit
     lgdt [cs:gdt_descriptor]
 
-    mov eax, cr0
-    or eax, 1        ; Set the protection enable bit
-    mov cr0, eax
-
-    ; Prevent Crashes with XMM Instructions
-    mov eax, cr0
-    and eax, ~(1 << 2)     ; clear EM
-    or  eax,  (1 << 1)     ; set MP
-    mov cr0, eax
-
-    mov eax, cr4
-    or  eax, (1 << 9)      ; OSFXSR
-    or  eax, (1 << 10)     ; OSXMMEXCPT (optional but recommended)
-    mov cr4, eax    
-
-    jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
-
-.unreal_fin:
-    ; Load the Kernel
-    jmp 0x0:loadkernel
-
+    ; Enable Protected Mode
+    call protected_mode_enable
     jmp dword 0x08:pmode_entry    ; 0x08 Is the Code Segment of the GDT
 
 hang:
