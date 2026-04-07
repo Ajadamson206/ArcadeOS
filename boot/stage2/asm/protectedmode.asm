@@ -5,7 +5,6 @@ global c_code_exit
 global back_to_c
 
 extern stage2_c_main
-extern loadkernel
 
 c_stack:
     dd 0
