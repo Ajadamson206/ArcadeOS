@@ -2,7 +2,7 @@
 #include <graphics.h>
 #include <keyboard.h>
 #include <serial.h>
-#include <misc.h>
+#include <unistd.h>
 #include <color_changer.h>
 #include <stdlib.h>
 #include <maze_game_menu.h>

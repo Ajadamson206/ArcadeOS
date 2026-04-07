@@ -52,6 +52,9 @@ while allFiles.qsize() != 0:
         elif re.search(".*\\.asm$", file) != None:
             countAsmLines(file)
     else:
+        if file == "src/DOOM-PORT/doomgeneric":
+            continue
+    
         for newFiles in listdir(file):
             allFiles.put(join(file, newFiles))
 

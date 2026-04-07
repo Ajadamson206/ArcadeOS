@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <rawio.h>
 #include <serial.h>
+#include <stdlib.h>
 
 static void (*kb_hook)(u16);
 
@@ -103,11 +104,17 @@ void kb_on_activation(u8 code) {
         u16 ext_code = 0xE000U | code;
         kb_extended_prefix = 0;
 
+        if(kb_hook)
+            kb_hook(ext_code);
+
         kb_extended_activation(ext_code);
         update_has_been_pressed();
 
         return;
     }
+
+    if(kb_hook)
+        kb_hook(code);
 
     // Press Codes are bounded from 0x00 - 0x58
     // Release Codes are bounded from 0x81 - 0xD8

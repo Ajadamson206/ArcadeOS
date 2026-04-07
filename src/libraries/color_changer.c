@@ -119,7 +119,7 @@ void color_changer_draw_modifier_dynam_assets(void) {
     draw_rectangle(245, 145, 395, 295, 2, BLACK);
 
     // Clear the text
-    draw_rectangle_filled(128, 320, 520, 340, LIGHT_GRAY);
+    draw_rectangle_filled(0, 300, 639, 350, LIGHT_GRAY);
 
 
     // RGB

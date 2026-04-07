@@ -30,6 +30,10 @@ CFLAGS += -O2
 LDFLAGS := -m elf_i386
 LDFLAGS += -nostdlib
 
+# Link against libgcc so I don't have to 
+# reimplement 64-bit multiplication + division
+LIBGCC := $(shell gcc -m32 -print-libgcc-file-name)
+
 #
 # Directories and Filenames
 #
@@ -79,7 +83,7 @@ $(BD)/%.o: $(ASM)/%.asm | $(BD)
 
 # Link
 $(ELF): $(CLIB_O) $(KENTRY_O) $(KASM_O) | $(BD)
-	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O) $(KASM_O)
+	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O) $(KASM_O) $(LIBGCC)
 
 clean:
 	rm -rf $(BD)

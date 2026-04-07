@@ -36,8 +36,9 @@ void idt_init(void) {
         idt_e->type_attr = 0;
         idt_e->zero = 0;
     }
-    
+
     // Set the gate to the stub
+    kb_hook_add((void*)0);
 
     // Errors
     idt_set_gate(IDT_DIV_ZERO, (u32)isr0, 0x08, IDT_ENTRY_P_BIT | INTRPT_GATE_32);
