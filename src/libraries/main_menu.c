@@ -6,18 +6,19 @@
 #include <color_changer.h>
 #include <stdlib.h>
 #include <maze_game_menu.h>
+#include <snake.h>
 
 static u32 default_color = LIGHT_GRAY;
 static u32 selected_color = YELLOW;
 static u32 background_color = BLACK;
 
 static volatile i8 current_option = 0;
-static const i8 num_options = 3;
+static const i8 num_options = 4;
 
 static const u32 menu_start = 180;
 
-static const char* menu_options[3] = {"maze game", "color changer", "doom"};
-static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry};
+static const char* menu_options[4] = {"maze game", "color changer", "doom", "snake"};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main};
 
 void main_menu_draw_options(void) {
     // Draw all text
@@ -57,6 +58,7 @@ void main_menu_entry(void) {
     menu_entry[0] = maze_game_menu;
     menu_entry[1] = color_changer_entry;
     menu_entry[2] = color_changer_entry;
+    menu_entry[3] = snake_main;
 
 restart:
     // Load Graphics
@@ -95,9 +97,10 @@ restart:
                     break;
                 
                 case KEY_ENTER_PRESSED:
-                    serial_print(COM1, "Selected Game: ");
-                    serial_print(COM1, menu_options[current_option]);
+                    // serial_print(COM1, "Selected Game: ");
+                    // serial_print(COM1, menu_options[current_option]);
                     menu_entry[current_option]();
+                    kb_clear_press_buff();
                     goto restart;
                     break;
 

@@ -7,6 +7,12 @@
 static idt_entry idt[IDT_COUNT];
 static idtr idt_reg;
 
+// Incremented every milisecond
+static volatile u64 ticks = 0;
+
+// Keeps track of number of microseconds
+static volatile u64 timer_uptime = 0;
+
 // Interrupt Stubs defined in interrupt_stub.asm
 // Define during the linking
 extern void isr0(void);
@@ -115,8 +121,12 @@ void interrupt_timer_handler(void) {
     PIC_sendEOI(0);
 }
 
-u64 get_pit_ticks(void) {
-    return (u64)ticks;
+volatile u64 get_pit_ticks(void) {
+    return ticks;
+}
+
+volatile u64 get_pit_timer_uptime(void) {
+    return timer_uptime;
 }
 
 void PIC_init(void) {

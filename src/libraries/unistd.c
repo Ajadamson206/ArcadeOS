@@ -1,13 +1,16 @@
 #include <stdint.h>
 #include <interrupts.h>
+#include <serial.h>
+
 
 void sleep_ticks(u64 num_ticks) {
-    u64 end = ticks + num_ticks;
+    volatile u64 end = get_pit_ticks() + num_ticks;
 
     for (;;) {
         // Prevent the timer from firing immediately after the check
         __asm__ volatile ("cli");
 
+        volatile u64 ticks = get_pit_ticks();
         if ((i64)(end - ticks) <= 0) {
             __asm__ volatile ("sti");
             break;

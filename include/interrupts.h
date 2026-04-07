@@ -220,12 +220,6 @@ extern void interrupt_default_handler(u32 interrupt, u32 error);
  */
 extern void interrupt_keyboard_handler(void);
 
-// Incremented every milisecond
-static volatile u64 ticks = 0;
-
-// Keeps track of number of microseconds
-static volatile u64 timer_uptime = 0;
-
 /**
  * IDT Function for handling the timer
  */
@@ -234,4 +228,9 @@ extern void interrupt_timer_handler(void);
 /**
  * Get the number of PIT ticks
  */
-extern u64 get_pit_ticks(void);
+extern volatile u64 get_pit_ticks(void);
+
+/**
+ * Get the PIT timer uptime in milliseconds
+ */
+extern volatile u64 get_pit_timer_uptime(void);
