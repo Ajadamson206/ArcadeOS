@@ -17,18 +17,26 @@
 // 8 bit integers
 typedef signed char     i8;
 typedef unsigned char   u8;
+typedef signed char     int8_t;
+typedef unsigned char   uint8_t;
 
 // 16 bit integers
 typedef signed short    i16;
 typedef unsigned short  u16;
+typedef signed short    int16_t;
+typedef unsigned short  uint16_t;
 
 // 32 bit integers
 typedef signed int    i32;
 typedef unsigned int  u32;
+typedef signed int    int32_t;
+typedef unsigned int  uint32_t;
 
-// 64 bit integers (Still possible with 64 bit architecture)
+// 64 bit integers (Still possible with 32 bit architecture)
 typedef signed long long    i64;
 typedef unsigned long long  u64;
+typedef signed long long    int64_t;
+typedef unsigned long long  uint64_t;
 
 /**
  * Limits

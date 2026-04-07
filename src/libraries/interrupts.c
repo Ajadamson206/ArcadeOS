@@ -36,7 +36,7 @@ void idt_init(void) {
         idt_e->type_attr = 0;
         idt_e->zero = 0;
     }
-
+    
     // Set the gate to the stub
 
     // Errors
@@ -109,6 +109,7 @@ void interrupt_keyboard_handler(void) {
 
 void interrupt_timer_handler(void) {
     ticks++;
+    timer_uptime += US_PER_TICK;
 
     PIC_sendEOI(0);
 }
@@ -118,6 +119,9 @@ u64 get_pit_ticks(void) {
 }
 
 void PIC_init(void) {
+    ticks = 0;
+    timer_uptime = 0;
+    
     // Set the Timer interrupt to be the start of PIC
     PIC_remap(IDT_TIMER, IDT_TIMER + 8);
 

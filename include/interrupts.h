@@ -178,6 +178,9 @@ extern u16 IRQ_get_mask(void);
 #define PIT_COMMAND_REQ 0x43
 #define PIT_CHANNEL_0_DATA 0x40
 
+// Microseconds per Tick
+#define US_PER_TICK (1000000ULL / PIT_FREQ)
+
 /**
  * Initialize the Programmable Interval Timer
  */
@@ -218,7 +221,10 @@ extern void interrupt_default_handler(u32 interrupt, u32 error);
 extern void interrupt_keyboard_handler(void);
 
 // Incremented every milisecond
-static volatile u64 ticks = 0;
+volatile u64 ticks = 0;
+
+// Keeps track of number of microseconds
+volatile u64 timer_uptime = 0;
 
 /**
  * IDT Function for handling the timer

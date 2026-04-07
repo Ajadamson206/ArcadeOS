@@ -99,6 +99,7 @@
 #define KEY_ARROW_LEFT_PRESSED 0xE04B
 #define KEY_ARROW_RIGHT_PRESSED 0xE04D
 #define KEY_ARROW_DOWN_PRESSED 0xE050
+#define KEY_R_CTRL_PRESSED 0xE01D
 
 /* Released Keys */
 
@@ -192,6 +193,7 @@
 #define KEY_ARROW_LEFT_RELEASED 0xE0CB
 #define KEY_ARROW_RIGHT_RELEASED 0xE0CD
 #define KEY_ARROW_DOWN_RELEASED 0xE0D0
+#define KEY_R_CTRL_RELEASED 0xE09D
 
 /**
  * Halts all actions until the keyboard is pressed
@@ -237,3 +239,15 @@ extern u16 kb_get_next_pressed_key(void);
  */
 extern void print_key_presses(void);
 
+/**
+ * Hook an external function to run when the keyboard is pressed
+ * 
+ * @param kb_hook void (*)(u16) A void function with a single u16 parameter
+ * for the keyboard scancode
+ */
+extern void kb_hook_add(void (*kb_hook)(u16));
+
+/**
+ * Remove the hooked function to the keyboard interrupt
+ */
+extern void kb_hook_remove(void);

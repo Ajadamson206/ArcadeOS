@@ -3,12 +3,14 @@
 #include <rawio.h>
 #include <serial.h>
 
+static void (*kb_hook)(u16);
+
 static const char kb_lookup_table[] = {
     27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-    '-', '=', 8, '\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U',
-    'I', 'O', 'P', '[', ']', '\n', 0, 'A', 'S', 'D', 'F',
-    'G', 'H', 'J', 'K', 'L', ';', '\'', '`', 0, '\\', 'Z',
-    'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/', 0, '*',
+    '-', '=', 8, '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u',
+    'i', 'o', 'p', '[', ']', '\n', 0, 'a', 's', 'd', 'f',
+    'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\', 'z',
+    'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*',
     0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', 
     '+', '1', '2', '3', '0', '.', 0, 0, 0, 0, 0
@@ -198,4 +200,12 @@ void print_key_presses(void) {
     serial_print(COM1, "\nReg Codes 1: ");
     serial_print_hex(COM1, (u32)((kb_reg_codes[1])>>32));
     serial_print_hex(COM1, (u32)((kb_reg_codes[1])));
+}
+
+void kb_hook_add(void (*kb_hook_func)(u16)) {
+    kb_hook = kb_hook_func;
+}
+
+void kb_hook_remove(void) {
+    kb_hook = NULL;
 }
