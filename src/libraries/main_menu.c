@@ -7,18 +7,19 @@
 #include <stdlib.h>
 #include <maze_game_menu.h>
 #include <snake.h>
+#include <tv-screen.h>
 
 static u32 default_color = LIGHT_GRAY;
 static u32 selected_color = YELLOW;
 static u32 background_color = BLACK;
 
 static volatile i8 current_option = 0;
-static const i8 num_options = 4;
+static const i8 num_options = 5;
 
 static const u32 menu_start = 180;
 
-static const char* menu_options[4] = {"maze game", "color changer", "doom", "snake"};
-static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main};
+static const char* menu_options[5] = {"maze game", "color changer", "doom", "snake", "idle"};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main, idle_screen_main};
 
 void main_menu_draw_options(void) {
     // Draw all text
