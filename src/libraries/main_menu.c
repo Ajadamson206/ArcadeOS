@@ -19,8 +19,18 @@ static const i8 num_options = 6;
 
 static const u32 menu_start = 180;
 
+static void draw_test(void) {
+    fill_screen(background_color);
+
+    draw_circle(320, 240, 25, default_color);
+
+    for(;;) {
+        __asm__ volatile("hlt");
+    }
+} 
+
 static const char* menu_options[] = {"maze game", "color changer", "doom", "snake", "idle", "pong"};
-static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main, idle_screen_main, pong_main};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main, draw_test, pong_main};
 
 void main_menu_draw_options(void) {
     // Draw all text
