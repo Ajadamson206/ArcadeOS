@@ -375,3 +375,18 @@ void draw_rectangle_filled(u32 x1, u32 y1, u32 x2, u32 y2, u32 color) {
         memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
     }
 }
+
+void draw_horizontal_line(u32 x1, u32 y, u32 x2, u32 color) {
+    if(y >= frame_buffer_info.framebuffer_height)
+        return;
+
+    if(x1 >= frame_buffer_info.framebuffer_width || x2 >= frame_buffer_info.framebuffer_width)
+        return;
+
+    if(x1 > x2) {
+        x2 = x1;   
+    }
+
+    volatile u32* row = (volatile u32*)((volatile u8*)lfb_start + (x1 * 4) + y * frame_buffer_info.framebuffer_pitch);
+    memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
+}

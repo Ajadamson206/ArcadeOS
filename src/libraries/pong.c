@@ -13,6 +13,10 @@
 static u32 background_color;
 static u32 ball_color;
 
+// Screen Settings
+
+#define SCREEN_Y_END 100
+
 // Ball Settings
 
 #define BALL_START_X 320
@@ -96,24 +100,56 @@ static void pong_kb_hook(u16 keycode) {
     }
 }
 
+// Player 1 Goal = 0, Player 2 Goal = 1,
+// Ignore anything else
+static void on_goal_score(int player) {
+
+}
+
 static void render_text(void) {
     
+}
+
+static void update_player_1(void) {
+
+}
+
+static void update_player_2(void) {
+
+}
+
+static void update_ball(void) {
+
+}
+
+static int check_for_goals(void) {
+
 }
 
 static void pong_update_loop(void) {
     while(!should_quit) {
         // Calculate delta_time
+        delta_time = fabsf(((float)cur_ticks - (float)get_pit_ticks()) / (float)PIT_FREQ);
         
         // Clear the screen
+        draw_rectangle_filled(0, SCREEN_Y_END + 1, 639, 479, background_color);
 
+        // Update player1, player2
+        update_player_1();
+        update_player_2();
 
+        // Update the ball
+        update_ball();
+
+        // Check for goals, it calls on_goal_score if there was a goal
+        check_for_goals();
 
         // Slow Loop a bit, so CPU doesn't max out
         usleep(TICK_SPEED);
     }
 }
 
-static void pong_main(void) {
+void pong_main(void) {
     // Init
     cur_ticks = get_pit_ticks();
     should_quit = 0;
@@ -123,6 +159,8 @@ static void pong_main(void) {
     ball_color = mm_get_text_color();
 
     fill_screen(background_color);
+
+    draw_horizontal_line(0, SCREEN_Y_END, 639, ball_color);
 
     // Ball Init
 
