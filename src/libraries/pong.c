@@ -23,9 +23,10 @@ static u32 text_color;
 #define BALL_START_X 320
 #define BALL_START_Y 240
 
-#define BALL_RADIUS 20.0f
+#define BALL_RADIUS 15.0f
 
-#define BALL_VELOCITY 45
+#define BALL_VELOCITY 55.0f
+#define BALL_VELOCITY_SCALE 1.15f
 
 static float ball_x, ball_y;    // Ball's Position
 static float ball_vx, ball_vy;  // Ball's Velocity Vector
@@ -34,6 +35,8 @@ static u32 ball_prev_x1, ball_prev_y1;
 static u32 ball_prev_x2, ball_prev_y2;
 
 static float ball_size;
+
+static float ball_vy_rolling_scale;
 
 // Player 1
 
@@ -117,7 +120,20 @@ static void render_text(void) {
     // Clear the Text First
     draw_rectangle_filled(0, 0, 639, SCREEN_Y_END - 1, background_color);
 
-    char* text = "LEFT 000     000 RIGHT";
+    char* text = "LEFT 00      00 RIGHT";
+    u8 p1_score = player1_score;
+    u8 p2_score = player2_score;
+
+    // Player 1 Score
+    text[6] += p1_score % 10;
+    p1_score /= 10;
+    text[5] += p1_score % 10;
+
+    // player 2 Score
+    text[14] += p2_score % 10;
+    p2_score /= 10;
+    text[13] += p2_score % 10;
+
     draw_text_centered(text, text_color, 7, 30);
 }
 
@@ -155,11 +171,91 @@ static void update_player_2(void) {
     draw_rectangle_filled(639 - (u32)PLAYER_WIDTH, player2_y - PLAYER_LENGTH, 639, player2_y + PLAYER_LENGTH, ball_color);
 }
 
+void reset_game(void) {
+    fill_screen(background_color);
+
+    draw_horizontal_line(0, SCREEN_Y_END, 639, ball_color);
+
+    render_text();
+
+    // Ball Init
+
+    ball_x = BALL_START_X;
+    ball_y = BALL_START_Y;
+    ball_vx = -BALL_VELOCITY;
+    ball_vy = BALL_VELOCITY;
+
+    ball_vy_rolling_scale = BALL_VELOCITY_SCALE;
+
+    // Player 1 Init
+
+    player1_y = PLAYER_START_Y;
+    player1_vy = 0.0f;
+
+    // Player 2 Init
+
+    player2_y = PLAYER_START_Y;
+    player2_vy = 0.0f;
+
+    delta_time = 0.0;
+}
+
+static int check_for_goals(void) {
+    // Left sided goals
+    if(ball_x - BALL_RADIUS <= 0.0f) {
+        player2_score++;
+        reset_game();
+    } else if(ball_x + BALL_RADIUS >= 640.0f) {
+        player1_score++;
+        reset_game();
+    }    
+}
+
 // Find point on the rectangle closest to the circle center
 static float clampf(float v, float min, float max) {
     if(v < min) return min;
     if(v > max) return max;
     return v;
+}
+
+static void ball_left_player_collision(void) {
+    // We called this function when the radius across the x axis
+    // could potentially be touching
+
+    float closest_x = clampf(ball_x, PLAYER1_X, PLAYER1_X + PLAYER_WIDTH);
+    float closest_y = clampf(ball_y, player1_y - PLAYER_LENGTH, player1_y + PLAYER_LENGTH);
+
+    float dx = ball_x - closest_x;
+    float dy = ball_y - closest_y;
+
+    // Check for a collision
+    if(dx * dx + dy * dy <= BALL_RADIUS * BALL_RADIUS) {
+        // Determine direction by where ball hits
+        float offset = (ball_y - player1_y) / (PLAYER_LENGTH);   // range about [-1, 1]
+
+        // Subtract b/c the ball was moving left
+        ball_vx = -(ball_vx * BALL_VELOCITY_SCALE);
+        ball_vy = (offset * BALL_VELOCITY);
+        ball_vy_rolling_scale *= ball_vy_rolling_scale;
+    }
+}
+
+static void ball_right_player_collision(void) {
+    float closest_x = clampf(ball_x, PLAYER2_X, PLAYER2_X + PLAYER_WIDTH);
+    float closest_y = clampf(ball_y, player2_y - PLAYER_LENGTH, player2_y + PLAYER_LENGTH);
+
+    float dx = ball_x - closest_x;
+    float dy = ball_y - closest_y;
+
+    // Check for a collision
+    if(dx * dx + dy * dy <= BALL_RADIUS * BALL_RADIUS) {
+        // Determine direction by where ball hits
+        float offset = (ball_y - player2_y) / (PLAYER_LENGTH);   // range about [-1, 1]
+
+        ball_vx = -(ball_vx * BALL_VELOCITY_SCALE);
+        ball_vy = (offset * BALL_VELOCITY * ball_vy_rolling_scale);
+        ball_vy_rolling_scale *= ball_vy_rolling_scale;
+    }
 }
 
 static void update_ball(void) {
@@ -170,28 +266,29 @@ static void update_ball(void) {
     // Check for Collisions (Top)
     if(ball_y - BALL_RADIUS <= SCREEN_Y_END) {
         ball_vy *= -1;
+        ball_y = SCREEN_Y_END + BALL_RADIUS; // Clamp Ball to Screen
     }
 
     // Check for Collision (Bottom)
     if(ball_y + BALL_RADIUS >= 480.0f) {
         ball_vy *= -1;
+        ball_y = 480.0f - BALL_RADIUS; // Clamp Ball to Screen
     }
 
     // Only Need to Check for Collisions if the Ball is near the paddle
+    
+    // Check for Left Player Collisions
+    if(ball_x - BALL_RADIUS <= PLAYER_WIDTH) {
+        ball_left_player_collision();
+    }
 
-    // Check for Potential Collisions (Left Player)
+    // Check for Right Player Collisions
+    if(ball_x + BALL_RADIUS >= 640 - PLAYER_WIDTH) {
+        ball_right_player_collision();
+    }
 
-
-    float closest_x = clampf(ball_x, 0.0f, 0.0f + PLAYER_WIDTH);
-    float closest_y = clampf(ball_y, 0.0f, 0.0f + PLAYER_WIDTH);
-
-
-    // Check for Collisions (Right Player)
-
-}
-
-static int check_for_goals(void) {
-
+    // Draw the Ball
+    draw_circle_filled(ball_x, ball_y, BALL_RADIUS, ball_color);
 }
 
 static void pong_update_loop(void) {
@@ -233,32 +330,10 @@ void pong_main(void) {
     ball_color = mm_get_text_color();
     text_color = mm_get_selected_text_color();
 
-    fill_screen(background_color);
-
-    draw_horizontal_line(0, SCREEN_Y_END, 639, ball_color);
-
-    render_text();
-
-    // Ball Init
-
-    ball_x = BALL_START_X;
-    ball_y = BALL_START_Y;
-    ball_vx = BALL_VELOCITY;
-    ball_vy = BALL_VELOCITY;
-
-    // Player 1 Init
-
-    player1_y = PLAYER_START_Y;
-    player1_vy = 0.0f;
     player1_score = 0;
-
-    // Player 2 Init
-
-    player2_y = PLAYER_START_Y;
-    player2_vy = 0.0f;
     player2_score = 0;
 
-    delta_time = 0.0;
+    reset_game();
 
     kb_clear_press_buff();
 

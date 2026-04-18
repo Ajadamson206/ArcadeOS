@@ -33,6 +33,8 @@ static float box_size;
 static u64 cur_ticks;
 static double delta_time;
 
+static int has_been_init = 0;
+
 static void idle_screen_kb_hook(u16 keycode) {
     // Ignore Released Keys only press keys
     if(keycode < KEY_ESC_RELEASED)
@@ -107,18 +109,24 @@ void idle_screen_main(void) {
 
     fill_screen(background_color);
 
-    box_x = BOX_START_X;
-    box_y = BOX_START_Y;
+    // Do not reset everything if it has already been
+    // I had some corruption with bss memory so I've been
+    // doing it like this.
+    if(!has_been_init) {
+        box_x = BOX_START_X;
+        box_y = BOX_START_Y;
 
-    box_vx = BOX_VELOCITY;
-    box_vy = BOX_VELOCITY;
+        box_vx = BOX_VELOCITY;
+        box_vy = BOX_VELOCITY;
 
-    prev_x1 = 0;
-    prev_y1 = 0;
-    prev_x2 = 0;
-    prev_y2 = 0;
+        prev_x1 = 0;
+        prev_y1 = 0;
+        prev_x2 = 0;
+        prev_y2 = 0;
 
-    box_size = BOX_SCALE;
+        box_size = BOX_SCALE;
+        has_been_init = 1;
+    }    
 
     delta_time = 0.0;
 

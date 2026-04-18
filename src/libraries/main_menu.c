@@ -9,6 +9,7 @@
 #include <snake.h>
 #include <tv-screen.h>
 #include <pong.h>
+#include <interrupts.h>
 
 static u32 default_color = LIGHT_GRAY;
 static u32 selected_color = YELLOW;
@@ -19,18 +20,23 @@ static const i8 num_options = 6;
 
 static const u32 menu_start = 180;
 
-static void draw_test(void) {
-    fill_screen(background_color);
+static u64 timer_ticks = 0;
+static u64 timer_end = 0;
 
-    draw_circle(320, 240, 25, default_color);
+#define IDLE_WAIT_TIME_SEC 10
 
-    for(;;) {
-        __asm__ volatile("hlt");
-    }
-} 
+// static void draw_test(void) {
+//     fill_screen(background_color);
+// 
+//     draw_circle(320, 240, 25, default_color);
+// 
+//     for(;;) {
+//         __asm__ volatile("hlt");
+//     }
+// } 
 
 static const char* menu_options[] = {"maze game", "color changer", "doom", "snake", "idle", "pong"};
-static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main, draw_test, pong_main};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main, idle_screen_main, pong_main};
 
 void main_menu_draw_options(void) {
     // Draw all text
@@ -87,10 +93,23 @@ restart:
 
     // Load Options
     main_menu_draw_options();
+
+    timer_ticks = get_pit_ticks();
+    timer_end = timer_ticks + ((u64)IDLE_WAIT_TIME_SEC * PIT_FREQ);
     
     // Wait for input (Up + Down Arrow)
     while(1) {
+        // Go to an idle screen if idle for too long
+        if(get_pit_ticks() > timer_end) {
+            idle_screen_main();
+            goto restart;
+        }
+
         if(kb_check_if_pressed()) {
+            // Reset Timer
+            timer_ticks = get_pit_ticks();
+            timer_end = timer_ticks + ((u64)IDLE_WAIT_TIME_SEC * PIT_FREQ);
+
             // Get the key
             u16 key = kb_get_next_pressed_key();
 
