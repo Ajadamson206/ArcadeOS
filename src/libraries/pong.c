@@ -22,8 +22,8 @@ static u32 ball_color;
 
 #define BALL_VELOCITY 45
 
-static float ball_x, ball_y;    // Box's Position
-static float ball_vx, ball_vy;  // Box's Velocity Vector
+static float ball_x, ball_y;    // Ball's Position
+static float ball_vx, ball_vy;  // Ball's Velocity Vector
 
 static u32 prev_x1, prev_y1;
 static u32 prev_x2, prev_y2;

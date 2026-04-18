@@ -23,6 +23,8 @@ No User Mode Transitions (Ring Zero), Filesystem, Networking, Multiprocessing, n
 
 ## Creating the Executable
 
+**NOTE:** The Development Process has only been tested on Linux. Windows support is unknown
+
 ### Required Tooling
 
 ~~~~```plaintext```
