@@ -375,3 +375,56 @@ void draw_rectangle_filled(u32 x1, u32 y1, u32 x2, u32 y2, u32 color) {
         memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
     }
 }
+
+void draw_horizontal_line(u32 x1, u32 y, u32 x2, u32 color) {
+    if(y >= frame_buffer_info.framebuffer_height)
+        return;
+
+    if(x1 >= frame_buffer_info.framebuffer_width || x2 >= frame_buffer_info.framebuffer_width)
+        return;
+
+    if(x1 > x2) {
+        x2 = x1;   
+    }
+
+    volatile u32* row = (volatile u32*)((volatile u8*)lfb_start + (x1 * 4) + y * frame_buffer_info.framebuffer_pitch);
+    memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
+}
+
+void draw_circle_filled(u32 x, u32 y, u32 radius, u32 color) {
+    if(radius == 0)
+        return;
+
+    if(x < radius || x + radius >= frame_buffer_info.framebuffer_width)
+        return;
+
+    if(y < radius || y + radius >= frame_buffer_info.framebuffer_height)
+        return;
+
+    volatile u8* fb = (volatile u8*)lfb_start;
+    
+    // Draw the Middle Row since it will be completely filled
+    volatile u32* middle_row = (volatile u32*)(fb + ((x - radius) * 4) + y * frame_buffer_info.framebuffer_pitch);
+    memset32(middle_row, (int)color, sizeof(*middle_row) * (2 * radius + 1));
+
+    u32 inner_x = radius;
+
+    // Draw the Upper and Middle at the Same Time
+    for(u32 r = 1; r <= radius; r++) {
+        volatile u32* top_row = (volatile u32*)(fb + ((x - radius) * 4) + (y - r) * frame_buffer_info.framebuffer_pitch);
+        volatile u32* bottom_row = (volatile u32*)(fb + ((x - radius) * 4) + (y + r) * frame_buffer_info.framebuffer_pitch);
+    
+        // Check Which X value to start with 
+        while(inner_x > 0) {
+            // We can draw the pixels
+            if(r * r + inner_x * inner_x <= radius * radius) {
+                memset32(top_row + (radius - inner_x), (int)color, sizeof(*top_row) * inner_x * 2 + 1);
+                memset32(bottom_row + (radius - inner_x), (int)color, sizeof(*top_row) * inner_x * 2 + 1);
+                break;
+            }
+
+            inner_x--;
+        }     
+    }
+
+}

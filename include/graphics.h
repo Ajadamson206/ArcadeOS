@@ -130,3 +130,21 @@ extern void draw_rectangle(u32 x1, u32 y1, u32 x2, u32 y2, u8 depth, u32 color);
  * @param color (u32) Color of the rectangle 
  */
 extern void draw_rectangle_filled(u32 x1, u32 y1, u32 x2, u32 y2, u32 color);
+
+/**
+ * Draw a horizontal line across the screen
+ * @param x1 (u32) X-coordinate of the leftmost point
+ * @param y (u32) Y-coordinate of the line
+ * @param x2 (u32) X-coordinate of the rightmost point
+ * @param color (u32) Color of the line
+ */
+extern void draw_horizontal_line(u32 x1, u32 y, u32 x2, u32 color);
+
+/**
+ * Draw a filled in circle on th escnree
+ * @param x (u32) X-coordinate of the cirlce's center
+ * @param y (u32) Y-coordinate of the cirlce's center
+ * @param radium (u32) Radium of the circle
+ * @param color (u32) Color of the circle
+ */
+extern void draw_circle_filled(u32 x, u32 y, u32 radius, u32 color);
