@@ -32,6 +32,10 @@ static inline u32 create_color(u8 red, u8 green, u8 blue, u8 alpha) {
     return (alpha << 24) | (red << 16) | (green << 8) | blue;
 }
 
+static inline u32 invert_color(u32 color) {
+    return (~color) & 0x00FFFFFFU;
+}
+
 /**
  * Extract information from the MB2 tag containing the graphics information
  * @param tag_8 (tag_type_8 *) Pointer to where tag 8 is on the MB2 struct

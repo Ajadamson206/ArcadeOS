@@ -36,8 +36,8 @@ static double delta_time;
 static int has_been_init = 0;
 
 static void idle_screen_kb_hook(u16 keycode) {
-    // Ignore Released Keys only press keys
-    if(keycode < KEY_ESC_RELEASED)
+    // Ignore Released Keys only press keys (Also looked at EXT Codes Presses)
+    if(keycode < KEY_ESC_RELEASED || (keycode >= 0xE010 && keycode <= 0xE06D))
         should_quit = 1;
 }
 

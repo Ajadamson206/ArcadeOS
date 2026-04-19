@@ -10,6 +10,7 @@
 #include <tv-screen.h>
 #include <pong.h>
 #include <interrupts.h>
+#include <instruction_screen.h>
 
 static u32 default_color = LIGHT_GRAY;
 static u32 selected_color = YELLOW;
@@ -36,7 +37,7 @@ static u64 timer_end = 0;
 // } 
 
 static const char* menu_options[] = {"maze game", "color changer", "doom", "snake", "idle", "pong"};
-static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, color_changer_entry, snake_main, idle_screen_main, pong_main};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, instr_test, snake_main, idle_screen_main, pong_main};
 
 void main_menu_draw_options(void) {
     // Draw all text
@@ -72,11 +73,6 @@ u32 mm_get_background_color(void) {
 void main_menu_entry(void) {
     background_color = BLACK;
     current_option = 0;
-
-    menu_entry[0] = maze_game_menu;
-    menu_entry[1] = color_changer_entry;
-    menu_entry[2] = color_changer_entry;
-    menu_entry[3] = snake_main;
 
 restart:
     // Load Graphics

@@ -8,6 +8,8 @@
 #include <graphics.h>
 #include <serial.h>
 #include <interrupts.h>
+#include <instruction_screen.h>
+#include <unistd.h>
 
 // Directions
 
@@ -104,19 +106,23 @@ static void snake_kb_handler(u16 keycode) {
     //serial_print(COM1, "Handler Called\n");
     switch (keycode) {
         case KEY_ARROW_LEFT_PRESSED:
-            snake_direction = MOVE_LEFT; 
+            if(snake_direction != MOVE_RIGHT)
+                snake_direction = MOVE_LEFT; 
             break;
 
         case KEY_ARROW_RIGHT_PRESSED:
-            snake_direction = MOVE_RIGHT;
+            if(snake_direction != MOVE_LEFT)
+                snake_direction = MOVE_RIGHT;
             break;
 
         case KEY_ARROW_DOWN_PRESSED:
-            snake_direction = MOVE_DOWN;
+            if(snake_direction != MOVE_UP)
+                snake_direction = MOVE_DOWN;
             break;
 
         case KEY_ARROW_UP_PRESSED:
-            snake_direction = MOVE_UP;
+            if(snake_direction != MOVE_DOWN)
+                snake_direction = MOVE_UP;
             break;
 
         case KEY_ESC_PRESSED:
@@ -158,6 +164,9 @@ static int snake_game_over(void) {
     draw_text_centered("Or any key to restart", snake_snake_color, 2, SNAKE_OVER_BOX_Y1 + 110);
 
     kb_clear_press_buff();
+
+    // Wait 1 Second
+    sleep(1);
 
     // Change Handler
     kb_hook_add(snake_game_over_menu);
@@ -486,7 +495,21 @@ restart:
     }
 }
 
+const char *snake_game_name = "snake";
+char *snake_instructions = "\
+Welcome to Snake\n\n\
+Move the snake with the arrow keys\n\n\
+Collect the apples to grow the\n\
+snake and increase the score\n\n\
+Lose by crashing into yourself or\n\
+the wall";
+
 void snake_main(void) {
+    // Load the instruction Screen
+    if(instr_screen_create(snake_game_name, snake_instructions)) {
+        return;
+    }
+
     // Add Keyboard Hook
     kb_hook_add(snake_kb_handler);
 

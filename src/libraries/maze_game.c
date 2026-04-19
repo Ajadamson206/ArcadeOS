@@ -404,7 +404,7 @@ restart:
     // Render the maze (Each maze node is a 4x4)
     maze_render(scale);
     maze_color_pos(player_x, player_y, maze_scale, mg_player_color);
-    maze_color_pos(win_x, win_y, maze_scale, mg_player_color);
+    maze_color_pos(win_x, win_y, maze_scale, invert_color(mg_player_color));
 
     while(1) {
         if(kb_check_if_pressed()) {

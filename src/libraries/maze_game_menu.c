@@ -2,6 +2,7 @@
 #include <keyboard.h>
 #include <graphics.h>
 #include <main_menu.h>
+#include <instruction_screen.h>
 
 // Menu to choose the size of the game
 static u32 mg_background_color;
@@ -51,12 +52,29 @@ void render_menu(u8 selection) {
     draw_text_centered("Very Hard", (selection == 3)? mg_selected_color : mg_assets_color, 5, 350);
 }
 
+const char *maze_game_name = "maze game";
+char *maze_instructions = \
+"Welcome to the maze game\n\n\
+Using the arrow keys the you can\n\
+select a difficulty\n\
+Then hit enter to confirm the\n\
+choice\n\n\
+Controls\n\ 
+Arrow Keys to Move\n\
+R to reset everything\n\n\
+Reach the opposite corner to win";
+
 void maze_game_menu(void) {
     // Have users choose what size maze they want
     // Easy = 15 x 15
     // Medium = 31 x 31
     // Hard = 55 x 55
     // Very Hard = 81 x 81
+
+    // Load the Instruction Screen
+    if(instr_screen_create(maze_game_name, maze_instructions)) {
+        return;
+    }
 
     mg_background_color = mm_get_background_color();
     mg_assets_color = mm_get_text_color();
