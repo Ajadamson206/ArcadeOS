@@ -5,6 +5,8 @@
 #include <graphics.h>
 #include <interrupts.h>
 #include <math.h>
+#include <instruction_screen.h>
+#include <stdlib.h>
 
 #define TICK_SPEED 10000
 
@@ -67,8 +69,8 @@ static u8 player2_score;
 #define PLAYER_LENGTH 20.0f
 #define PLAYER_WIDTH 4.0f
 #define PLAYER_VELOCITY 100.0f
-// Misc Variables
 
+// Misc Variables
 static u64 cur_ticks;
 static double delta_time;
 static u8 should_quit;
@@ -110,10 +112,47 @@ static void pong_kb_hook(u16 keycode) {
     }
 }
 
-// Player 1 Goal = 0, Player 2 Goal = 1,
-// Ignore anything else
-static void on_goal_score(int player) {
+static void pong_game_over_kb_handler(u16 key) {
+    if(key == KEY_ESC_PRESSED) {
+        should_quit = 1;
+    } else {
+        should_quit = 2;
+    }
+}
 
+static int win_screen(int player) {
+    draw_rectangle_filled(200, 170, 440, 310, background_color);
+    draw_rectangle(200, 170, 440, 310, 3, text_color);
+
+    draw_text_centered("GAME OVER", text_color, 4, 190);
+    char text[] = "Player 1 Wins";
+    if(player == 1) {
+        text[7] = '2';
+    }
+
+    draw_text_centered(text, text_color, 3, 220);
+    draw_text_centered("Press ESC to QUIT", text_color, 2, 250);
+    draw_text_centered("Or any key to restart", text_color, 2, 280);
+
+    kb_clear_press_buff();
+
+    sleep(1);
+
+    kb_hook_add(pong_game_over_kb_handler);
+    
+    while(!should_quit) {
+        __asm__ volatile("hlt");
+    }
+
+    // Should Quit: 1 == Quit, 2 == Restart
+    if(should_quit == 2) {
+        should_quit = 0;
+        player1_score = 0;
+        player2_score = 0;
+        return 0;
+    } else {
+        return 1;   
+    }
 }
 
 static void render_text(void) {
@@ -171,19 +210,32 @@ static void update_player_2(void) {
     draw_rectangle_filled(639 - (u32)PLAYER_WIDTH, player2_y - PLAYER_LENGTH, 639, player2_y + PLAYER_LENGTH, ball_color);
 }
 
-void reset_game(void) {
+static int reset_game(void) {
     fill_screen(background_color);
 
     draw_horizontal_line(0, SCREEN_Y_END, 639, ball_color);
 
     render_text();
 
+    srand(rdtsc());
+
     // Ball Init
 
     ball_x = BALL_START_X;
     ball_y = BALL_START_Y;
-    ball_vx = -BALL_VELOCITY;
-    ball_vy = BALL_VELOCITY;
+
+    // Ball direction is a little random
+    int r = rand();
+    if(r & 1)
+        ball_vx = -BALL_VELOCITY;
+    else
+        ball_vx = BALL_VELOCITY;
+
+    r = rand();
+    if(r & 1)
+        ball_vy = -BALL_VELOCITY;
+    else
+        ball_vy = BALL_VELOCITY;
 
     ball_vy_rolling_scale = BALL_VELOCITY_SCALE;
 
@@ -198,17 +250,25 @@ void reset_game(void) {
     player2_vy = 0.0f;
 
     delta_time = 0.0;
+
+    if(player1_score >= 3) {
+        return win_screen(0);
+    } else if(player2_score >= 3) {
+        return win_screen(1);
+    }
+
+    return 0;
 }
 
 static int check_for_goals(void) {
     // Left sided goals
     if(ball_x - BALL_RADIUS <= 0.0f) {
         player2_score++;
-        reset_game();
+        return reset_game();
     } else if(ball_x + BALL_RADIUS >= 640.0f) {
         player1_score++;
-        reset_game();
-    }    
+        return reset_game();
+    }
 }
 
 // Find point on the rectangle closest to the circle center
@@ -320,7 +380,22 @@ static void pong_update_loop(void) {
     }
 }
 
+const char *pong_game_name = "pong";
+char *pong_instructions = "\
+Welcome to pong\n\n\
+Pong is a two player game\n\n\
+Player 1 Controls the paddle\n\
+with WASD\n\
+Player 2 Controls the paddle\n\
+with Arrow keys\n\n\
+The first player to 3 points wins";
+
 void pong_main(void) {
+    // Info Screen
+    if(instr_screen_create(pong_game_name, pong_instructions)) {
+        return;
+    }
+
     // Init
     cur_ticks = get_pit_ticks();
     should_quit = 0;
