@@ -206,7 +206,7 @@ void draw_text(const char *text, u32 text_color, u8 font_size, u32 x, u32 y){
             }
             
             u32 font_row   = ((row - y) / font_size);
-            u8 *font_ptr = &font[font_row][font_loc];
+            const u8 *font_ptr = &font[font_row][font_loc];
 
             // Print the text row
             for(u8 i = 0; i < font_len; i++) {
@@ -372,7 +372,7 @@ void draw_rectangle_filled(u32 x1, u32 y1, u32 x2, u32 y2, u32 color) {
     // Draw the lines
     for(u32 i = y1; i <= y2; i++) {
         volatile u32* row = (volatile u32*)(fb + (x1 * 4) + i * frame_buffer_info.framebuffer_pitch);
-        memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
+        memset32((void *)row, (int)color, sizeof(*row) * (x2 - x1 + 1));
     }
 }
 
@@ -388,7 +388,7 @@ void draw_horizontal_line(u32 x1, u32 y, u32 x2, u32 color) {
     }
 
     volatile u32* row = (volatile u32*)((volatile u8*)lfb_start + (x1 * 4) + y * frame_buffer_info.framebuffer_pitch);
-    memset32(row, (int)color, sizeof(*row) * (x2 - x1 + 1));
+    memset32((void *)row, (int)color, sizeof(*row) * (x2 - x1 + 1));
 }
 
 void draw_circle_filled(u32 x, u32 y, u32 radius, u32 color) {
@@ -405,7 +405,7 @@ void draw_circle_filled(u32 x, u32 y, u32 radius, u32 color) {
     
     // Draw the Middle Row since it will be completely filled
     volatile u32* middle_row = (volatile u32*)(fb + ((x - radius) * 4) + y * frame_buffer_info.framebuffer_pitch);
-    memset32(middle_row, (int)color, sizeof(*middle_row) * (2 * radius + 1));
+    memset32((void *)middle_row, (int)color, sizeof(*middle_row) * (2 * radius + 1));
 
     u32 inner_x = radius;
 
@@ -418,8 +418,8 @@ void draw_circle_filled(u32 x, u32 y, u32 radius, u32 color) {
         while(inner_x > 0) {
             // We can draw the pixels
             if(r * r + inner_x * inner_x <= radius * radius) {
-                memset32(top_row + (radius - inner_x), (int)color, sizeof(*top_row) * inner_x * 2 + 1);
-                memset32(bottom_row + (radius - inner_x), (int)color, sizeof(*top_row) * inner_x * 2 + 1);
+                memset32((void *)(top_row + (radius - inner_x)), (int)color, sizeof(*top_row) * inner_x * 2 + 1);
+                memset32((void *)(bottom_row + (radius - inner_x)), (int)color, sizeof(*top_row) * inner_x * 2 + 1);
                 break;
             }
 

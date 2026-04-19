@@ -59,7 +59,7 @@ Using the arrow keys the you can\n\
 select a difficulty\n\
 Then hit enter to confirm the\n\
 choice\n\n\
-Controls\n\ 
+Controls\n\
 Arrow Keys to Move\n\
 R to reset everything\n\n\
 Reach the opposite corner to win";
