@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <interrupts.h>
 #include <main_menu.h>
+#include <memory.h>
 
 __attribute__((noreturn))
 void kernel_main(u32 magic, void *mb_info) {
@@ -33,6 +34,9 @@ void kernel_main(u32 magic, void *mb_info) {
     kb_clear_press_buff();
 
     atexit(NULL);
+
+    // Init the Dynamic Memory
+    init_memory(get_memory_map());
 
     main_menu_entry();
 error:

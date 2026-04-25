@@ -1,4 +1,6 @@
-void *memcopy(void *dst, const void *src, unsigned long len) {
+#include <stdlib.h>
+
+void *memcpy(void *dst, const void *src, unsigned long len) {
     void *ret = dst;
 
     unsigned long dwords = len >> 2;
@@ -228,14 +230,31 @@ char * strrchr(const char * string, int character) {
 
     while(*string) {
         if(*string == (char)character) {
-            ret = string;
+            ret = (char *)string;
         }
         string++;
     }
 
     // Check if character is 0
     if(*string == character)
-        ret = string;
+        ret = (char *)string;
+
+    return ret;
+}
+
+char *strdup(const char *str1) {
+    u32 len = (u32)strlen(str1);
+
+    char *new_str = malloc(len * sizeof(*new_str));    
+    char *ret = new_str;
+
+    if(new_str == NULL)
+        return NULL;
+
+    while(*str1) {
+        *new_str++ = *str1++;
+    }
+    *new_str = 0;
 
     return ret;
 }

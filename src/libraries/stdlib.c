@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <rawio.h>
+#include <memory.h>
+#include <ctype.h>
 
 // Convert string -> float
 double atof(const char* nptr) {
@@ -117,10 +119,22 @@ void srand(unsigned long long seed) {
 
 void* aligned_alloc(size_t alignment, size_t size);
 void* calloc(size_t nmemb, size_t size);
-void free(void* ptr);
+
+void free(void* ptr) {
+    memory_free(ptr);
+}
+
 void free_sized(void* ptr, size_t size);
 void free_aligned_sized(void* ptr, size_t alignment, size_t size);
-void* malloc(size_t size);
+
+void* malloc(size_t size) {
+    if(size > MAX_CHUNK_SIZE)
+        return NULL;
+
+    return memory_alloc((u32)size);
+}
+
+
 void* realloc(void* ptr, size_t size);
 
 static void (*exit_func)(void) = NULL;

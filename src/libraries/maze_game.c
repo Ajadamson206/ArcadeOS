@@ -153,7 +153,7 @@ void maze_render(u8 scale) {
     for(u8 i = 1; i < scale; i++) {
         volatile u32 *row =
             (volatile u32 *)((volatile u8 *)maze_start + i * screen_data.framebuffer_pitch);
-        memcopy((void *)row, (const void *)maze_start, maze_width * sizeof(*row));
+        memcpy((void *)row, (const void *)maze_start, maze_width * sizeof(*row));
     }
     
     //
@@ -191,7 +191,7 @@ void maze_render(u8 scale) {
         for(u8 i = 1; i < scale; i++) {
             volatile u32 *row2 = 
                 (volatile u32*)((volatile u8*)row + i * screen_data.framebuffer_pitch);
-            memcopy((void *)row2, (const void *)row, maze_width * sizeof(*row));
+            memcpy((void *)row2, (const void *)row, maze_width * sizeof(*row));
         }
     }
     
@@ -208,7 +208,7 @@ void maze_render(u8 scale) {
     for(u8 i = 1; i < scale; i++) {
         volatile u32 *row2 = 
             (volatile u32*)((volatile u8*)row + i * screen_data.framebuffer_pitch);
-        memcopy((void *)row2, (const void *)row, maze_width * sizeof(*row2));
+        memcpy((void *)row2, (const void *)row, maze_width * sizeof(*row2));
     }
 } 
 

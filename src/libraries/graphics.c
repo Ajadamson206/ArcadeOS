@@ -239,7 +239,7 @@ void draw_text(const char *text, u32 text_color, u8 font_size, u32 x, u32 y){
             }
 
             volatile u32 *lfb_row2 = (volatile u32 *)(fb + ((row + i) * frame_buffer_info.framebuffer_pitch));
-            memcopy((void *)&(lfb_row2[x]), (const void *)&(lfb_row[x]), (col - x) * sizeof(u32));
+            memcpy((void *)&(lfb_row2[x]), (const void *)&(lfb_row[x]), (col - x) * sizeof(u32));
         }
     }
 }
@@ -302,7 +302,7 @@ void draw_rectangle(u32 x1, u32 y1, u32 x2, u32 y2, u8 depth, u32 color) {
             break;
         
         volatile u32* row2 = (volatile u32*)(fb + (y1 + i) * frame_buffer_info.framebuffer_pitch);
-        memcopy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1 + 1) * sizeof(u32));
+        memcpy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1 + 1) * sizeof(u32));
     }
 
     // Calculate how many normal sides have to be done
@@ -349,7 +349,7 @@ bottom:
             break;
 
         volatile u32* row2 = (volatile u32*)(fb + (y1 + i) * frame_buffer_info.framebuffer_pitch);
-        memcopy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1) * sizeof(u32));
+        memcpy((void *)&(row2[x1]), (const void *)&(row[x1]), (x2 - x1) * sizeof(u32));
     }
 
 }

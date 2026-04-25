@@ -259,7 +259,7 @@ static void reset_game(void) {
             reset_game();
         }
     } else if(player2_score >= 3) {
-        if(win_screen(1)) {
+        if(!win_screen(1)) {
             reset_game();
         }
     }

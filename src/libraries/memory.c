@@ -1,19 +1,30 @@
 #include <bootinfo.h>
 #include <memory.h>
+#include <stdlib.h>
 
 #define KERNEL_STAGING_ADDR 0x00200000u
 
-static inline int contains_kernel(e820_entry entry) {
-    return (entry.base_address > KERNEL_STAGING_ADDR) && ((entry.base_address + entry.region_length) < KERNEL_STAGING_ADDR);
+// Store different Type 2 Memory locations
+static memory_spot memory_places[MAX_MEM_SPOTS];
+static u8 num_places = 0;
+
+static int contains_kernel(e820_entry entry) {
+    u64 start = entry.base_address;
+    u64 end = entry.base_address + entry.region_length;
+
+    u64 kernel_start = KERNEL_STAGING_ADDR;
+    u64 kernel_approx_end = KERNEL_STAGING_ADDR + KERNEL_SIZE;
+
+    return start < kernel_approx_end && end > kernel_start;
 }
 
 void init_memory(tag_type_6 *memory_info) {
     num_places = 0;
-    u32 num_entries = memory_info->size - sizeof(*memory_info) / memory_info->entry_size;
+    u32 num_entries = (memory_info->size - sizeof(*memory_info)) / memory_info->entry_size;
     e820_entry *entries = memory_info->entries;
 
     for (u32 i = 0; i < num_entries; i++) {
-        if(entries[i].region_type == 2 && !contains_kernel(entries[i])) {
+        if(entries[i].region_type == 1 && !contains_kernel(entries[i])) {
             memory_places[num_places].mem_start = (void *)entries[i].base_address;
             memory_places[num_places].mem_size = entries[i].region_length;
             num_places++;
@@ -24,6 +35,10 @@ void init_memory(tag_type_6 *memory_info) {
             break;
         }
     }
+
+    // Init the Memory
+    for(u8 i = 0; i < num_places; i++)
+        init_mem_block(memory_places[i]);
 }
 
 void init_mem_block(memory_spot block) {
@@ -58,18 +73,18 @@ void init_mem_block(memory_spot block) {
     block_write->type = 1;
     block_write->header_size = sizeof(block_start);
     block_write->chunk_size = MAX_CHUNK_SIZE;
+    block_write->max_chunks = max_chunks;
 
     // Free ptr and malloc ptr point to the beginning of the queue
     block_write->free_idx = 0;
     block_write->malloc_idx = 0;
 
     // Where the memory chunks start (Move past the header)
-    block_write->mem_start = (void *)(block.mem_start + block_write->header_size + queue_size);
-    block_write->queue_size = queue_size;
+    block_write->mem_start = (void *)((u8 *)block.mem_start + block_write->header_size + queue_size);
 
     // Start filling out the queue
     void* mem_start = (void*)block_write->mem_start;
-    for(u32 i = 0; i < queue_size; i++) {
+    for(u32 i = 0; i < max_chunks; i++) {
         block_write->queue_start[i] = mem_start;
         mem_start = ((u8 *)mem_start) + MAX_CHUNK_SIZE;
     }
@@ -97,7 +112,7 @@ void memory_free(void *memory_chunk) {
     // Write the memory chunk to the free_ptr queue and
     // Increment it
     header->queue_start[header->free_idx++] = memory_chunk;
-    header->free_idx %= header->queue_size;
+    header->free_idx %= header->max_chunks;
 }
 
 void *memory_alloc(u32 size) {
@@ -118,7 +133,7 @@ void *memory_alloc(u32 size) {
         
         // Increment malloc_ptr and mod it by queue size
         head->queue_start[head->malloc_idx++] = NULL;
-        head->malloc_idx %= head->queue_size;
+        head->malloc_idx %= head->max_chunks;
 
         return ret;
     }

@@ -7,7 +7,7 @@
  * @param src (const void *) Pointer to where the input is
  * @param len (unsigned long) Length in bytes of the src memory 
  */
-extern void *memcopy(void *dst, const void *src, unsigned long len);
+extern void *memcpy(void *dst, const void *src, unsigned long len);
 
 /**
  * Copies the values of num bytes from the location pointed by source to the 
@@ -83,3 +83,10 @@ extern unsigned long strlen(const char *str);
  * Returns NULL if not found
  */
 extern char * strrchr(const char * string, int character);
+
+/**
+ * Copies a string to a new string
+ * Returns a Malloced string which must be freed
+ * Returns NULL if there was an error
+ */
+extern char *strdup(const char *str1);

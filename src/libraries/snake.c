@@ -245,7 +245,7 @@ static void snake_render_map(void) {
     for(u8 i = 1; i < MAP_SCALE; i++) {
         volatile u32 *row =
             (volatile u32 *)((volatile u8 *)map_start + i * screen_data.framebuffer_pitch);
-        memcopy((void *)row, (const void *)map_start, maze_width * sizeof(*row));
+        memcpy((void *)row, (const void *)map_start, maze_width * sizeof(*row));
     }
 
     //
@@ -289,7 +289,7 @@ static void snake_render_map(void) {
         for(u8 i = 1; i < MAP_SCALE; i++) {
             volatile u32 *row2 = 
                 (volatile u32*)((volatile u8*)row + i * screen_data.framebuffer_pitch);
-            memcopy((void *)row2, (const void *)row, maze_width * sizeof(*row));
+            memcpy((void *)row2, (const void *)row, maze_width * sizeof(*row));
         }
     }
 
@@ -306,7 +306,7 @@ static void snake_render_map(void) {
     for(u8 i = 1; i < MAP_SCALE; i++) {
         volatile u32 *row2 = 
             (volatile u32*)((volatile u8*)row + i * screen_data.framebuffer_pitch);
-        memcopy((void *)row2, (const void *)row, maze_width * sizeof(*row2));
+        memcpy((void *)row2, (const void *)row, maze_width * sizeof(*row2));
     }
 }
 

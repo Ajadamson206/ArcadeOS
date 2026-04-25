@@ -28,10 +28,6 @@ typedef struct {
 
 typedef u32 wchar_t;
 
-static inline int isdigit(char c) {
-    return (c >= '0' && c <= '9');
-}
-
 extern double atof(const char* nptr);
 extern int atoi(const char* nptr);
 extern long int atol(const char* nptr);
