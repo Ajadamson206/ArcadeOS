@@ -144,6 +144,8 @@ static int win_screen(int player) {
         __asm__ volatile("hlt");
     }
 
+    kb_hook_add(pong_kb_hook);
+
     // Should Quit: 1 == Quit, 2 == Restart
     if(should_quit == 2) {
         should_quit = 0;
@@ -210,7 +212,7 @@ static void update_player_2(void) {
     draw_rectangle_filled(639 - (u32)PLAYER_WIDTH, player2_y - PLAYER_LENGTH, 639, player2_y + PLAYER_LENGTH, ball_color);
 }
 
-static int reset_game(void) {
+static void reset_game(void) {
     fill_screen(background_color);
 
     draw_horizontal_line(0, SCREEN_Y_END, 639, ball_color);
@@ -252,22 +254,25 @@ static int reset_game(void) {
     delta_time = 0.0;
 
     if(player1_score >= 3) {
-        return win_screen(0);
+        // Win Screen Returns 0 if we are restarting
+        if(!win_screen(0)) {
+            reset_game();
+        }
     } else if(player2_score >= 3) {
-        return win_screen(1);
+        if(win_screen(1)) {
+            reset_game();
+        }
     }
-
-    return 0;
 }
 
-static int check_for_goals(void) {
+static void check_for_goals(void) {
     // Left sided goals
     if(ball_x - BALL_RADIUS <= 0.0f) {
         player2_score++;
-        return reset_game();
+        reset_game();
     } else if(ball_x + BALL_RADIUS >= 640.0f) {
         player1_score++;
-        return reset_game();
+        reset_game();
     }
 }
 

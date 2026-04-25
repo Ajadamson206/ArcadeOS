@@ -77,3 +77,9 @@ extern void *memset32(void *ptr, int value, unsigned long num_bytes);
  * Returns the length of the C string str.
  */
 extern unsigned long strlen(const char *str);
+
+/**
+ * Returns a ptr to the last occurrence of the passed in character
+ * Returns NULL if not found
+ */
+extern char * strrchr(const char * string, int character);

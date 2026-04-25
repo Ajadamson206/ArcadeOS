@@ -63,15 +63,47 @@ void *memmove ( void *dst, const void *src, unsigned long len ) {
     return ret;
 }
 
-char *strcpy ( char * destination, const char * source );
+char *strcpy ( char * destination, const char * source ) {
+    char *ret = destination;
 
-char *strcat ( char * destination, const char * source );
+    while(*source) {
+        *destination++ = *source++;
+    }
+    *destination = 0;
+    
+    return ret;
+}
+
+char *strcat ( char * destination, const char * source ) {
+    char *ret = destination;
+
+    // Look for null byte
+    while(*destination++);
+
+    // Found Null Byte
+    while(*source) {
+        *destination++ = *source++;
+    }
+    *destination = 0;
+
+
+    return ret;
+}
 
 char *strncat ( char * destination, const char * source, unsigned long num );
 
 int memcmp ( const void * ptr1, const void * ptr2, unsigned long num );
 
-int strcmp ( const char * str1, const char * str2 );
+int strcmp ( const char * str1, const char * str2 ) {
+    while(*str1 && *str2) {
+        if(*str1 - *str2)
+            return *str1 - *str2;
+        str1++;
+        str2++;
+    }
+
+    return (int)(*str1 - *str2);
+}
 
 void *memset( void *ptr, int value, unsigned long num ) {
     void *ret = ptr;
@@ -182,4 +214,28 @@ void *memset32( void *ptr, int value, unsigned long num_bytes ) {
     return ret;
 }
 
-unsigned long strlen ( const char * str );
+unsigned long strlen ( const char * str ) {
+    unsigned long len = 0;
+    while(*str++) {
+        len++;
+    }
+
+    return len;
+}
+
+char * strrchr(const char * string, int character) {
+    char *ret = (void *)(0);
+
+    while(*string) {
+        if(*string == (char)character) {
+            ret = string;
+        }
+        string++;
+    }
+
+    // Check if character is 0
+    if(*string == character)
+        ret = string;
+
+    return ret;
+}
