@@ -79,3 +79,13 @@ extern div_t div(int numer, int denom);
 extern ldiv_t ldiv(long int numer, long int denom);
 // extern lldiv_t lldiv(long long int numer, long long int denom);
 extern int mblen(const char* s, size_t n);
+
+/**
+ * Make future calls to exit work.
+ * 
+ * Stores the current stack pointer so we can
+ * return early
+ */
+extern void exit_precall(void);
+
+[[noreturn]] extern void exit(int code);

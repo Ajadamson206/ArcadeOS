@@ -27,8 +27,9 @@ static u32 text_color;
 
 #define BALL_RADIUS 15.0f
 
-#define BALL_VELOCITY 55.0f
-#define BALL_VELOCITY_SCALE 1.15f
+#define BALL_STARTING_VELOCITY 55.0f
+static float ball_velocity;
+#define BALL_VELOCITY_SCALE 5.0f
 
 static float ball_x, ball_y;    // Ball's Position
 static float ball_vx, ball_vy;  // Ball's Velocity Vector
@@ -74,6 +75,19 @@ static u8 player2_score;
 static u64 cur_ticks;
 static double delta_time;
 static u8 should_quit;
+
+static void pong_normalize_movement(void) {
+    // Calculate Magnitude
+    float magnitude = hypotf(ball_vx, ball_vy);
+
+    // Divide by magnitude
+    ball_vx /= magnitude;
+    ball_vy /= magnitude;
+
+    // Scale it up by velocity
+    ball_vx *= ball_velocity;
+    ball_vy *= ball_velocity;
+}
 
 static void pong_kb_hook(u16 keycode) {
     // Arrow keys move player 2
@@ -229,15 +243,20 @@ static void reset_game(void) {
     // Ball direction is a little random
     int r = rand();
     if(r & 1)
-        ball_vx = -BALL_VELOCITY;
+        ball_vx = -BALL_STARTING_VELOCITY;
     else
-        ball_vx = BALL_VELOCITY;
+        ball_vx = BALL_STARTING_VELOCITY;
 
     r = rand();
     if(r & 1)
-        ball_vy = -BALL_VELOCITY;
+        ball_vy = -BALL_STARTING_VELOCITY;
     else
-        ball_vy = BALL_VELOCITY;
+        ball_vy = BALL_STARTING_VELOCITY;
+
+    ball_velocity = BALL_STARTING_VELOCITY;
+
+    // Normalize the vector
+    pong_normalize_movement();
 
     ball_vy_rolling_scale = BALL_VELOCITY_SCALE;
 
@@ -300,8 +319,12 @@ static void ball_left_player_collision(void) {
 
         // Subtract b/c the ball was moving left
         ball_vx = -(ball_vx * BALL_VELOCITY_SCALE);
-        ball_vy = (offset * BALL_VELOCITY);
-        ball_vy_rolling_scale *= ball_vy_rolling_scale;
+        ball_vy = (offset * ball_velocity);
+
+        ball_velocity += ball_vy_rolling_scale;
+
+        // Normalize the movement
+        pong_normalize_movement();
     }
 }
 
@@ -318,8 +341,12 @@ static void ball_right_player_collision(void) {
         float offset = (ball_y - player2_y) / (PLAYER_LENGTH);   // range about [-1, 1]
 
         ball_vx = -(ball_vx * BALL_VELOCITY_SCALE);
-        ball_vy = (offset * BALL_VELOCITY * ball_vy_rolling_scale);
-        ball_vy_rolling_scale *= ball_vy_rolling_scale;
+        ball_vy = (offset * ball_velocity);
+
+        ball_velocity += ball_vy_rolling_scale;
+        
+        // Normalize the movement
+        pong_normalize_movement();
     }
 }
 

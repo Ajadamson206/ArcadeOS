@@ -210,3 +210,49 @@ ldiv_t ldiv(long int numer, long int denom) {
 //     lldiv_t ret = {numer / denom, numer % denom};
 //     return ret;
 // }
+
+typedef struct {
+    u32 esp;
+    u32 ebp;
+    u32 eip;
+} exit_info_t;
+
+static int error_code;
+static exit_info_t exit_info;
+
+// NEEDS TO BE FIXED
+void exit_precall(void) {
+    // Clear error_code
+    error_code = 0;
+
+    // Get current stack, code pointer, etc info
+    // __asm__ volatile(
+    //     "mov eax, esp\n"
+    //     "sub eax, 4\n"
+    //     "mov %0, eax"
+    //     : "=q"(stack_pointer)
+    //     :
+    //     : "eax", "memory"
+    // );
+}
+
+// NEEDS TO BE FIXED
+__attribute__((noreturn))
+void exit(int code) {
+    // Before going into doom, I will store the stack pointer, then when
+    // exit is called I will just revert that stack pointer to the saved one
+    error_code = code;
+    __asm__ volatile(
+        "mov esp, %0\n"
+        "mov ebp, %1\n"
+        "mov eax, %2\n"
+        "jmp eax\n"
+        :
+        : "m"(exit_info.esp),
+          "m"(exit_info.ebp),
+          "m"(exit_info.eip)
+        : "eax", "memory"
+    );
+
+    __builtin_unreachable();
+}
