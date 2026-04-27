@@ -17,7 +17,7 @@ static u32 selected_color = YELLOW;
 static u32 background_color = BLACK;
 
 static volatile i8 current_option = 0;
-static const i8 num_options = 6;
+static const i8 num_options = 5;
 
 static const u32 menu_start = 180;
 
@@ -36,8 +36,8 @@ static u64 timer_end = 0;
 //     }
 // } 
 
-static const char* menu_options[] = {"maze game", "color changer", "doom", "snake", "idle", "pong"};
-static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, instr_test, snake_main, idle_screen_main, pong_main};
+static const char* menu_options[] = {"maze game", "color changer", "snake", "idle", "pong"};
+static void (*menu_entry[])(void) = {maze_game_menu, color_changer_entry, snake_main, idle_screen_main, pong_main};
 
 void main_menu_draw_options(void) {
     // Draw all text

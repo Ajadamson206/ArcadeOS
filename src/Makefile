@@ -83,7 +83,7 @@ $(BD)/%.o: $(ASM)/%.asm | $(BD)
 
 # Link
 $(ELF): $(CLIB_O) $(KENTRY_O) $(KASM_O) | $(BD)
-	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O) $(KASM_O) $(LIBGCC)
+	$(LD) $(LDFLAGS) -T $(K_LD) -o $@ $(KENTRY_O) $(CLIB_O) $(KASM_O)
 
 clean:
 	rm -rf $(BD)

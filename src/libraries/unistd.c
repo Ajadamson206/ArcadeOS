@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <interrupts.h>
 #include <serial.h>
+#include <64bitoperations.h>
 
 
 void sleep_ticks(u64 num_ticks) {
